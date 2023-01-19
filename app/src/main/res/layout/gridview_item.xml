@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/gridview4"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:padding="0dp"
+    android:paddingStart="0dp"
+    android:paddingLeft="0dp"
+    android:paddingTop="0dp"
+    android:paddingEnd="0dp"
+    android:paddingRight="0dp"
+    android:paddingBottom="0dp">
+
+
+    <TextView
+        android:id="@+id/emoji"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="TextView"
+        android:textSize="42dp" />
+</RelativeLayout>
