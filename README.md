@@ -7,7 +7,7 @@ Listen to your mood
 
 #### Download the project
 ```bash
-git clone https://github.com/ambelghi42/smojifypropre Smojify &&
+git clone git@github.com:Smojify/Smojify-Android.git Smojify &&
 cd Smojify &&
 ./install.sh
 ```
