@@ -1,0 +1,13 @@
+<component name="libraryTable">
+  <library name="Gradle: io.ktor:ktor-websocket-serialization-jvm:2.2.2">
+    <CLASSES>
+      <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/io.ktor/ktor-websocket-serialization-jvm/2.2.2/173f9cd45cc70d6a0619a7463c85d76a4b50422a/ktor-websocket-serialization-jvm-2.2.2.jar!/" />
+    </CLASSES>
+    <JAVADOC>
+      <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/io.ktor/ktor-websocket-serialization-jvm/2.2.2/60f6b83978452093f215e92a309a7de291354cba/ktor-websocket-serialization-jvm-2.2.2-javadoc.jar!/" />
+    </JAVADOC>
+    <SOURCES>
+      <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/io.ktor/ktor-websocket-serialization-jvm/2.2.2/a3c10e56f740ff1cec8be5a8eb2e0183db26c956/ktor-websocket-serialization-jvm-2.2.2-sources.jar!/" />
+    </SOURCES>
+  </library>
+</component>
