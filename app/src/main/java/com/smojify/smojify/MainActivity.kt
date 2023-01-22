@@ -1,4 +1,4 @@
-package com.example.smojifypropre
+package com.smojify.smojify
 
 import android.annotation.SuppressLint
 import android.app.Activity
