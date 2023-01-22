@@ -1,4 +1,4 @@
-package com.example.smojifypropre
+package com.smojify.smojify
 
 import android.app.Activity
 import android.app.Dialog
