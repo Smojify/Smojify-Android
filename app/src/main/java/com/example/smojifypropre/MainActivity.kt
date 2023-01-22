@@ -1,4 +1,4 @@
-package com.example.smojifypropre
+package com.smojify.smojify
 
 import android.annotation.SuppressLint
 import android.app.Activity
@@ -29,7 +29,7 @@ public var trackTitle = ""
 public var trackArtist = ""
 fun getSpotify_webtoken(activity:Activity)
 {
-    val clientId = "ed0e36f24a834fcd8fb4b0d0658fdb19"
+    val clientId = "d12d52e12c1e4b8fb0edaa8b8d7c2cec"
     val redirectUri = "http://localhost:8888/callback"
     var builder = AuthorizationRequest.Builder(clientId, AuthorizationResponse.Type.TOKEN, redirectUri)
     builder.setScopes(arrayOf<String>("playlist-read-private","playlist-read-collaborative","playlist-modify-private", "playlist-modify-public", "ugc-image-upload"))
