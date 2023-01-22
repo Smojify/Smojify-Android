@@ -1,4 +1,4 @@
-package com.smojify.smojify
+package com.example.smojifypropre
 
 import android.graphics.Color
 import android.os.Bundle

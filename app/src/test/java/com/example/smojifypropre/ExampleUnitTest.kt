@@ -1,4 +1,4 @@
-package com.smojify.smojify
+package com.example.smojifypropre
 
 import org.junit.Test
 

@@ -4,11 +4,11 @@ plugins {
 }
 
 android {
-    namespace 'com.smojify.smojify'
+    namespace 'com.example.smojifypropre'
     compileSdk 32
 
     defaultConfig {
-        applicationId "com.smojify.smojify"
+        applicationId "com.example.smojifypropre"
         minSdk 23
         targetSdk 32
         versionCode 1
