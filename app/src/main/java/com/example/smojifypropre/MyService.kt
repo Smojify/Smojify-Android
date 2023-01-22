@@ -1,4 +1,4 @@
-package com.example.smojifypropre
+package com.smojify.smojify
 
 import android.annotation.SuppressLint
 import android.app.*
@@ -86,7 +86,7 @@ class MyService : Service() {
         val appWidgetManager = AppWidgetManager.getInstance(this.applicationContext)
         val appWidgetIds = AppWidgetManager.getInstance(this.applicationContext).getAppWidgetIds(ComponentName(this.applicationContext, HomeScreen::class.java))
         val notifids = AppWidgetManager.getInstance(this.applicationContext).getAppWidgetIds(ComponentName(this.applicationContext, StackRemoteViewsFactory::class.java))
-        val clientId = "ed0e36f24a834fcd8fb4b0d0658fdb19"
+        val clientId = "d12d52e12c1e4b8fb0edaa8b8d7c2cec"
         val redirectUri = "http://localhost:8888/callback"
         val connectionParams = ConnectionParams.Builder(clientId)
             .setRedirectUri(redirectUri)
