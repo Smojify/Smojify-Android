@@ -65,6 +65,7 @@ class dialogactivity : AppCompatActivity() {
         tabLayout?.addOnTabSelectedListener(object : OnTabSelectedListener {
             override fun onTabSelected(tab: TabLayout.Tab) {
                viewPager?.setCurrentItem(tab.position, true)
+                adapter2.notifyDataSetChanged()
             }
 
             override fun onTabUnselected(tab: TabLayout.Tab) {
@@ -241,9 +242,42 @@ data class playlist_builder(val name:String, val public:Boolean, val collaborati
 data class playlist_response(val collaborative: Boolean, val description: String, val externalUrls: external_urls, val followers: followers, val href: String, val id: String, val images:List<images>, val name: String)
 data class playlists_list(val items:Array<playlist_response>)
 
-fun add_to_playlist(view:View, track_uri:String, emoji:String)
+fun reactToTrack(view:View, track_uri:String, emoji:String) {
+    Log.e("Function: ", "reactToTrack")
+    Log.e("Reaction: ", emoji)
+    Log.e("Track: ", track_uri)
+    /*
+    if (playlistExist(emoji)) {
+        Log.e("Playlist Exist: ", "TRUE")
+    } else {
+        Log.e("Playlist Exist: ", "FALSE")
+        //create_playlist(view, emoji)
+        //reactToTrack(view, track_uri, emoji)
+        return
+    }
+    */
+    /*
+    val currentTrackPosition = getTrackPosition(track_uri, emoji)
+     */
+    val currentTrackPosition = 1
+    Log.e("Track Position: ", currentTrackPosition.toString())
+    runBlocking {
+    if (currentTrackPosition == null) {
+       addTrackToPlaylist(view, track_uri, emoji, 0)
+    } else if (currentTrackPosition > 0) {
+       addTrackToPlaylist(view, track_uri, emoji, currentTrackPosition - 1)
+    }
+    }
+    LoadingScreen.hideLoading()
+}
+
+fun addTrackToPlaylist(view:View, track_uri:String, emoji:String, position: Int)
 {
+    Log.e("Function: ", "addTrackToPlaylist")
     val playlist = getplaylist(view, emoji)
+    if (playlist == null) {
+        Log.e("FUCK: ", "FUCK")
+    }
     val client = HttpClient() {
         install(ContentNegotiation) {
             gson()
@@ -261,11 +295,10 @@ fun add_to_playlist(view:View, track_uri:String, emoji:String)
     lateinit var playlists:playlists_list
     runBlocking {
         val response: HttpResponse = client.post("tracks"){
-            parameter("position", 0)
+            parameter("position", position)
             parameter("uris", track_uri)
         }
         Log.e("ADD_PLAYLIST",response.body())
-        LoadingScreen.hideLoading()
         Toast.makeText(actictx, trackTitle + " by " + trackArtist + " added to " + emoji,Toast.LENGTH_SHORT).show()
         val json = response.body<playlists_list>()
     }
@@ -370,14 +403,14 @@ object LoadingScreen {
     fun displayLoadingWithText(context: Context?, text: String?, cancelable: Boolean, convertView: View?) { // function -- context(parent (reference))
         dialog = Dialog(context!!)
         if (dialog == null)
-            Log.e("LOADING SCREEN", "COULDNT CREATE DIALOG")
+            Log.e("Loading Screen", "Error while creating Dialog")
         dialog!!.requestWindowFeature(Window.FEATURE_NO_TITLE)
         dialog!!.setContentView(R.layout.layout_loading_screen)
         dialog!!.window!!.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
         dialog!!.setCancelable(cancelable)
         val textView = dialog!!.findViewById<TextView>(R.id.text)
         textView.text = text
-        dialog!!.setOnShowListener { add_to_playlist(
+        dialog!!.setOnShowListener { reactToTrack(
             convertView!!,
             current_trackid,
             convertView!!.findViewById<TextView>(R.id.emoji).text.toString()
