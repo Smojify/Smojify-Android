@@ -1,6 +1,5 @@
 package com.smojify.smojify
 
-
 import android.app.Activity
 import android.app.Dialog
 import android.content.BroadcastReceiver
@@ -43,6 +42,7 @@ import io.ktor.serialization.gson.*
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import java.io.ByteArrayOutputStream
+
 
 var tabLayout: TabLayout? = null
 
@@ -259,7 +259,7 @@ fun reactToTrack(view:View, track_uri:String, emoji:String) {
     /*
     val currentTrackPosition = getTrackPosition(track_uri, emoji)
      */
-    val currentTrackPosition = 0
+    val currentTrackPosition = 1
     Log.e("Track Position: ", currentTrackPosition.toString())
     runBlocking {
     if (currentTrackPosition == null) {
