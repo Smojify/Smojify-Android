@@ -39,9 +39,13 @@ import io.ktor.client.request.forms.*
 import io.ktor.client.statement.*
 import io.ktor.http.*
 import io.ktor.serialization.gson.*
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
+import io.ktor.util.*
+import kotlinx.coroutines.*
 import java.io.ByteArrayOutputStream
+import java.io.IOException
+import java.net.HttpURLConnection
+import java.net.URL
+
 
 
 var tabLayout: TabLayout? = null
@@ -248,9 +252,9 @@ fun reactToTrack(view:View, track_uri:String, emoji:String) {
     Log.e("Track: ", track_uri)
     val playlist = getplaylist(view, emoji)
     if (playlist != null) {
-        Log.e("Playlist Exist: ", "TRUE")
+       // Log.e("Playlist Exist: ", "TRUE")
     } else {
-        Log.e("Playlist Exist: ", "FALSE")
+       // Log.e("Playlist Exist: ", "FALSE")
         create_playlist(view, emoji)
         reactToTrack(view, track_uri, emoji)
         return
@@ -262,11 +266,48 @@ fun reactToTrack(view:View, track_uri:String, emoji:String) {
     if (currentTrackPosition == null) {
        addTrackToPlaylist(view, track_uri, emoji, 0)
     } else if (currentTrackPosition > 0) {
-       addTrackToPlaylist(view, track_uri, emoji, currentTrackPosition - 1)
+        removeTrackFromPlaylist(playlist.id, track_uri, currentTrackPosition)
+        addTrackToPlaylist(view, track_uri, emoji, currentTrackPosition - 1)
     }
     }
     LoadingScreen.hideLoading()
 }
+
+@OptIn(InternalAPI::class)
+fun removeTrackFromPlaylist(playlistId: String, trackUri: String, trackPosition: Int) {
+    Log.e("Function: ", "removeTrackFromPlaylist")
+    val client = HttpClient() {
+        install(ContentNegotiation) {
+            gson()
+        }
+        defaultRequest {
+            url {
+                protocol = URLProtocol.HTTPS
+                host = "api.spotify.com"
+                path("/v1/playlists/" + playlistId + "/")
+            }
+            header("Authorization", "Bearer " + spotify_webtoken)
+        }
+    }
+    runBlocking {
+        client.attributes
+        val response: HttpResponse = client.delete("tracks") {
+            body = """
+    {
+        "tracks": [
+            {
+                "uri": "$trackUri",
+                "positions": [$trackPosition]
+            }
+        ]
+    }
+    """
+        }
+        Log.e("RM_FROM_PLAYLIST",response.body())
+    }
+}
+
+
 data class track_builder(val uri: String)
 data class track_response(val track: track_builder)
 data class tracks_list(val items:Array<track_response>)
@@ -292,7 +333,7 @@ fun getTrackPosition(trackUri: String, playlist: playlist_response): Int? {
             parameter("offset", 0)
         }
         val json = response.body<tracks_list>()
-        Log.e("Tracks name", response.body())
+        //Log.e("Tracks name", response.body())
         tracks = json
     }
     var i = 0
