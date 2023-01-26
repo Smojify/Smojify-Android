@@ -36,7 +36,7 @@ We're following <https://semver.org/> to annotate the Smojify's version
 
 Hey, check the [ROADMAP.md](ROADMAP.md) file to know everythings about how are we going to do
 
-See the [open issues](https://github.com/Smojify/Smojify/issues) for a list of proposed features.
+See the [open issues](https://github.com/Smojify/Smojify-Android/issues) for a list of proposed features.
 
 ### Built-With
 
@@ -52,7 +52,7 @@ Any dependencies should go here, maybe better empty
 
 Hopefully, this should be empty too
 
-See the [open issues](https://github.com/Smojify/Smojify/issues) for a list of known issues.
+See the [open issues](https://github.com/Smojify/Smojify-Android/issues) for a list of known issues.
 
 ## Getting Started
 
@@ -65,7 +65,7 @@ As there's no APK for the moment, you'll need Android Studio to install it on yo
 #### Download the project
 ```sh
 cd ~ &&
-git clone git@github.com:Smojify/Smojify-Android.git Smojify &&
+git clone git@github.com:Smojify/Smojify-Android-Android.git Smojify &&
 cd Smojify &&
 ./install.sh
 ```
@@ -101,7 +101,7 @@ Please check the [CONTRIBUTING.md](CONTRIBUTING.md) file
 * **[thdelmas](https://github.com/thdelmas)** - *Initial design*, *Dev*
 * **[ambelghi42](https://github.com/ambelghi42)** - *Dev*, *Tests*
 
-See also the list of [contributors](https://github.com/Smojify/Smojify/graphs/contributors) who participated in this project.
+See also the list of [contributors](https://github.com/Smojify/Smojify-Android/graphs/contributors) who participated in this project.
 
 ## Licence
 
