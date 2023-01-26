@@ -44,6 +44,7 @@ Any dependencies should go here, maybe better empty
 - Android Studio
 - Kotlin
 - Emojis / Unicode
+- [Spotify Android SDK](https://github.com/spotify/android-sdk)
 
 ### Security
 
@@ -69,7 +70,7 @@ cd Smojify &&
 ./install.sh
 ```
 
-#### Uplod it to your phone
+#### Upload it to your phone
 - Open the project with Android Studio
 - Make sure you have dev option enabled on the phone
 - Plug your phone to the computer
