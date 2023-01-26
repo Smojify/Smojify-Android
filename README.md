@@ -28,6 +28,10 @@ React to the songs you're listening and then listen to the mood you want
 
 You can find [here](SPECIFICATIONS.md), more information about what the final product should look like
 
+#### Versionning
+
+We're following <https://semver.org/> to annotate the Smojify's version
+
 ### Roadmap
 
 Hey, check the [ROADMAP.md](ROADMAP.md) file to know everythings about how are we going to do
