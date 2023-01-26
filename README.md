@@ -13,7 +13,6 @@
   * [Installation](#installation)
   * [Testing](#testing)
   * [Usage](#usage)
-* [API](API.md)
 * [Contributing](#contributing)
 * [Contact](#contact)
 * [Authors](#authors)
