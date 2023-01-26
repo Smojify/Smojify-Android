@@ -99,7 +99,7 @@ Please check the [CONTRIBUTING.md](CONTRIBUTING.md) file
 ## Authors
 
 * **[thdelmas](https://github.com/thdelmas)** - *Initial design*, *Dev*
-* **[thdelmas](https://github.com/ambelghi42)** - *Dev*, *Tests*
+* **[ambelghi42](https://github.com/ambelghi42)** - *Dev*, *Tests*
 
 See also the list of [contributors](https://github.com/Smojify/Smojify/graphs/contributors) who participated in this project.
 
