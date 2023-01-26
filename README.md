@@ -15,3 +15,9 @@ cd Smojify &&
 #### Open it with android studio
 
 #### Install it on your phone
+
+## Nota Bene
+
+### Versionning
+
+We're following <https://semver.org/> to annotate the Smojify's version
