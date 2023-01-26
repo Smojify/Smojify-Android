@@ -39,9 +39,13 @@ import io.ktor.client.request.forms.*
 import io.ktor.client.statement.*
 import io.ktor.http.*
 import io.ktor.serialization.gson.*
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
+import io.ktor.util.*
+import kotlinx.coroutines.*
 import java.io.ByteArrayOutputStream
+import java.io.IOException
+import java.net.HttpURLConnection
+import java.net.URL
+
 
 
 var tabLayout: TabLayout? = null
@@ -246,29 +250,101 @@ fun reactToTrack(view:View, track_uri:String, emoji:String) {
     Log.e("Function: ", "reactToTrack")
     Log.e("Reaction: ", emoji)
     Log.e("Track: ", track_uri)
-    /*
-    if (playlistExist(emoji)) {
-        Log.e("Playlist Exist: ", "TRUE")
+    val playlist = getplaylist(view, emoji)
+    if (playlist != null) {
+       // Log.e("Playlist Exist: ", "TRUE")
     } else {
-        Log.e("Playlist Exist: ", "FALSE")
-        //create_playlist(view, emoji)
-        //reactToTrack(view, track_uri, emoji)
+       // Log.e("Playlist Exist: ", "FALSE")
+        create_playlist(view, emoji)
+        reactToTrack(view, track_uri, emoji)
         return
     }
-    */
-    /*
-    val currentTrackPosition = getTrackPosition(track_uri, emoji)
-     */
-    val currentTrackPosition = 1
+    val currentTrackPosition = getTrackPosition(track_uri, playlist)
+    //Log.e("Playlist", playlist.toString())
     Log.e("Track Position: ", currentTrackPosition.toString())
     runBlocking {
     if (currentTrackPosition == null) {
        addTrackToPlaylist(view, track_uri, emoji, 0)
     } else if (currentTrackPosition > 0) {
-       addTrackToPlaylist(view, track_uri, emoji, currentTrackPosition - 1)
+        removeTrackFromPlaylist(playlist.id, track_uri, currentTrackPosition)
+        addTrackToPlaylist(view, track_uri, emoji, currentTrackPosition - 1)
     }
     }
     LoadingScreen.hideLoading()
+}
+
+@OptIn(InternalAPI::class)
+fun removeTrackFromPlaylist(playlistId: String, trackUri: String, trackPosition: Int) {
+    Log.e("Function: ", "removeTrackFromPlaylist")
+    val client = HttpClient() {
+        install(ContentNegotiation) {
+            gson()
+        }
+        defaultRequest {
+            url {
+                protocol = URLProtocol.HTTPS
+                host = "api.spotify.com"
+                path("/v1/playlists/" + playlistId + "/")
+            }
+            header("Authorization", "Bearer " + spotify_webtoken)
+        }
+    }
+    runBlocking {
+        client.attributes
+        val response: HttpResponse = client.delete("tracks") {
+            body = """
+    {
+        "tracks": [
+            {
+                "uri": "$trackUri",
+                "positions": [$trackPosition]
+            }
+        ]
+    }
+    """
+        }
+        Log.e("RM_FROM_PLAYLIST",response.body())
+    }
+}
+
+
+data class track_builder(val uri: String)
+data class track_response(val track: track_builder)
+data class tracks_list(val items:Array<track_response>)
+
+fun getTrackPosition(trackUri: String, playlist: playlist_response): Int? {
+    val client = HttpClient() {
+        install(ContentNegotiation) {
+            gson()
+        }
+        defaultRequest {
+            url {
+                protocol = URLProtocol.HTTPS
+                host = "api.spotify.com"
+                path("/v1/playlists/" + playlist.id + "/")
+            }
+            header("Authorization", "Bearer " + spotify_webtoken)
+        }
+    }
+    lateinit var tracks:tracks_list
+    runBlocking {
+        val response: HttpResponse = client.get("tracks") {
+            parameter("limit", 50)
+            parameter("offset", 0)
+        }
+        val json = response.body<tracks_list>()
+        //Log.e("Tracks name", response.body())
+        tracks = json
+    }
+    var i = 0
+    for (item in tracks.items) {
+        if (item.track.uri == trackUri) {
+            return i
+        }
+        i++
+        Log.e("Item", item.track.toString())
+    }
+    return null
 }
 
 fun addTrackToPlaylist(view:View, track_uri:String, emoji:String, position: Int)
@@ -327,7 +403,7 @@ fun getplaylist(view:View, emoji: String):playlist_response
             parameter("offset", 0)
         }
         val json = response.body<playlists_list>()
-        Log.e("Playlist name", response.body())
+        //Log.e("Playlist name", response.body())
         playlists =  json
     }
     val playlist = playlists.items.find { it.name.equals(emoji) }
