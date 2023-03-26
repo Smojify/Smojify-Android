@@ -63,32 +63,36 @@ data class playlist_builder(val name:String, val public:Boolean, val collaborati
 data class playlist_response(val collaborative: Boolean, val description: String, val externalUrls: external_urls, val followers: followers, val href: String, val id: String, val images:List<images>, val name: String)
 data class playlists_list(val items:Array<playlist_response>)
 
-fun reactToTrack(view: View, track_uri:String, emoji:String) {
+fun reactToTrack(view: View, emoji:String) {
     Log.e("Function: ", "reactToTrack")
     Log.e("Reaction: ", emoji)
-    Log.e("Track: ", track_uri)
-    val playlist = getplaylist(view, emoji)
-    if (playlist != null) {
-        // Log.e("Playlist Exist: ", "TRUE")
-    } else {
-        // Log.e("Playlist Exist: ", "FALSE")
-        create_playlist(view, emoji)
-        reactToTrack(view, track_uri, emoji)
-        return
-    }
-    val currentTrackPosition = getTrackPosition(track_uri, playlist)
-    //Log.e("Playlist", playlist.toString())
-    Log.e("Track Position: ", currentTrackPosition.toString())
-    runBlocking {
-        if (currentTrackPosition == null) {
-            addTrackToPlaylist(view, track_uri, emoji, 0)
-        } else if (currentTrackPosition > 0) {
-            removeTrackFromPlaylist(playlist.id, track_uri, currentTrackPosition)
-            addTrackToPlaylist(view, track_uri, emoji, currentTrackPosition - 1)
+        spotifyAppRemote?.playerApi?.playerState?.setResultCallback { playerState ->
+            val track_uri = current_trackid
+            Log.e("Track: ", track_uri)
+            val playlist = getplaylist(view, emoji)
+            if (playlist != null) {
+                // Log.e("Playlist Exist: ", "TRUE")
+            } else {
+                // Log.e("Playlist Exist: ", "FALSE")
+                create_playlist(view, emoji)
+                reactToTrack(view, emoji)
+                return@setResultCallback
+            }
+            val currentTrackPosition = getTrackPosition(track_uri, playlist)
+            //Log.e("Playlist", playlist.toString())
+            Log.e("Track Position: ", currentTrackPosition.toString())
+            runBlocking {
+                if (currentTrackPosition == null) {
+                    addTrackToPlaylist(view, track_uri, emoji, 0)
+                } else if (currentTrackPosition > 0) {
+                    removeTrackFromPlaylist(playlist.id, track_uri, currentTrackPosition)
+                    addTrackToPlaylist(view, track_uri, emoji, currentTrackPosition - 1)
+                }
+            }
+            LoadingScreen.hideLoading()
         }
     }
-    LoadingScreen.hideLoading()
-}
+
 
 @OptIn(InternalAPI::class)
 fun removeTrackFromPlaylist(playlistId: String, trackUri: String, trackPosition: Int) {
@@ -312,7 +316,6 @@ object LoadingScreen {
         textView.text = text
         dialog!!.setOnShowListener { reactToTrack(
             convertView!!,
-            current_trackid,
             convertView!!.findViewById<TextView>(R.id.emoji).text.toString()
         ) }
         dialog!!.show()

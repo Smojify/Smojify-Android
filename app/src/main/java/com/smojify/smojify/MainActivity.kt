@@ -9,9 +9,13 @@ import android.content.Context
 import android.content.Intent
 import android.os.Build
 import android.os.Bundle
+import android.text.Editable
+import android.text.TextWatcher
 import android.util.Log
 import android.view.View
+import android.widget.EditText
 import android.widget.RemoteViews
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.emoji2.bundled.BundledEmojiCompatConfig
 import androidx.emoji2.text.EmojiCompat
@@ -21,6 +25,7 @@ import com.spotify.sdk.android.auth.AuthorizationClient
 import com.spotify.sdk.android.auth.AuthorizationRequest
 import com.spotify.sdk.android.auth.AuthorizationResponse
 import com.spotify.sdk.android.auth.LoginActivity.REQUEST_CODE
+import java.util.regex.Pattern
 
 
 public var spotify_webtoken = ""
@@ -61,6 +66,52 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
         var button:View = this.findViewById(R.id.button)
         val config = BundledEmojiCompatConfig(this)
+
+        val inputText = findViewById<EditText>(R.id.emoji_input)
+
+
+
+        inputText.addTextChangedListener(object : TextWatcher {
+            override fun afterTextChanged(s: Editable?) {
+                // Not needed for this implementation
+            }
+
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
+                // Not needed for this implementation
+            }
+
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+                s?.let {
+                    val text = it.toString()
+                    val emojiMatcher = Pattern.compile("[\uD83C-\uDBFF\uDC00-\uDFFF]+").matcher(text)
+
+                    // Check if there's an emoji in the text
+                    if (emojiMatcher.find()) {
+                        // React to the emoji
+                        val emoji = emojiMatcher.group()
+                        Toast.makeText(this@MainActivity, "Reacting to $emoji", Toast.LENGTH_SHORT).show()
+                        Log.e("TRACK_ID:", current_trackid)
+
+                        // Remove the emoji from the text
+                        val newString = text.replace(emoji, "")
+                        val index = newString.indexOf(emoji)
+                        if (index >= 0) {
+                            inputText.setText(newString)
+                            inputText.setSelection(index)
+                            reactToTrack(inputText, emoji)
+                        } else {
+                            Toast.makeText(this@MainActivity, "Error: emoji not found in input", Toast.LENGTH_SHORT).show()
+                        }
+
+                        // Call the reactToTrack function with the track URI and emoji
+                        reactToTrack(inputText, emoji)
+                    }
+                }
+            }
+
+        })
+
+
         val acti:Activity = this
         EmojiCompat.init(config).registerInitCallback(object: EmojiCompat.InitCallback() {
             override fun onInitialized() {

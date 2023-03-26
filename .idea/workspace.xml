@@ -13,9 +13,10 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="59ad466f-a3e4-4dcb-9756-927432a055c5" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/app/src/main/java/com/smojify/smojify/Spotify.kt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/smojify/smojify/dialogactivity.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/smojify/smojify/dialogactivity.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/smojify/smojify/MainActivity.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/smojify/smojify/MainActivity.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/smojify/smojify/Spotify.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/smojify/smojify/Spotify.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/res/layout/activity_main.xml" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/res/layout/activity_main.xml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
