@@ -382,6 +382,7 @@ fun addTrackToPlaylist(view:View, track_uri:String, emoji:String, position: Int)
 
 fun getplaylist(view:View, emoji: String):playlist_response
 {
+    val emojiName = getEmojiName(emoji)!!
     val client = HttpClient() {
         install(ContentNegotiation) {
             gson()
@@ -406,7 +407,7 @@ fun getplaylist(view:View, emoji: String):playlist_response
         //Log.e("Playlist name", response.body())
         playlists =  json
     }
-    val playlist = playlists.items.find { it.name.equals(emoji) }
+    val playlist = playlists.items.find { it.name.equals(emojiName) }
     if (playlist != null)
         return playlist
     return create_playlist(view, emoji)
@@ -416,6 +417,7 @@ fun getplaylist(view:View, emoji: String):playlist_response
 fun create_playlist(view:View, emoji:String):playlist_response
 {
     lateinit var respbody:playlist_response
+    val emojiName = getEmojiName(emoji)!!
     val client = HttpClient() {
         install(ContentNegotiation) {
             gson()
@@ -434,7 +436,7 @@ fun create_playlist(view:View, emoji:String):playlist_response
     runBlocking {
         val response: HttpResponse = client.post("playlists"){
             contentType(ContentType.Application.Json)
-            setBody(playlist_builder(emoji, false, false, "Playlist created by Smojify"))
+            setBody(playlist_builder(emojiName, false, false, "Playlist created by Smojify"))
         }
        // getSpotify_webtoken(view)
         respbody = response.body()

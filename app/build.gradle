@@ -49,6 +49,7 @@ dependencies {
     implementation 'com.github.bumptech.glide:glide:4.12.0'
     implementation "androidx.work:work-runtime-ktx:2.7.1"
     implementation 'com.google.guava:guava:27.0.1-android'
+    implementation 'org.jsoup:jsoup:1.14.2'
     implementation 'androidx.emoji2:emoji2-views:1.1.0'
     implementation 'androidx.emoji2:emoji2-bundled:1.1.0'
     implementation 'com.spotify.android:auth:1.2.5'
