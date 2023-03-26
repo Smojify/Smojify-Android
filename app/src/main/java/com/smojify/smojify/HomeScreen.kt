@@ -14,6 +14,7 @@ import android.widget.RemoteViews
 import androidx.emoji2.bundled.BundledEmojiCompatConfig
 import androidx.emoji2.text.EmojiCompat
 import com.spotify.android.appremote.api.SpotifyAppRemote
+import com.smojify.smojify.init_spot
 
 
 /**

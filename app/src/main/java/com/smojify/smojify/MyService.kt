@@ -75,7 +75,7 @@ class MyService : Service() {
         //notifView.setTextViewText(R.id.notif_dialog_btn, Html.fromHtml(EmojiCompat.get().process("&#x2795;").toString()))
         val dialog_intent = Intent(applicationContext, dialogactivity::class.java)
         dialog_intent.action = "notif_opendialog"
-        notifView.setOnClickPendingIntent(R.id.notif_dialog_btn, PendingIntent.getActivity(applicationContext, 0, dialog_intent, PendingIntent.FLAG_UPDATE_CURRENT))
+        notifView.setOnClickPendingIntent(R.id.notif_dialog_btn, PendingIntent.getActivity(applicationContext, 0, dialog_intent, PendingIntent.FLAG_MUTABLE))
         AppWidgetManager.getInstance(applicationContext).updateAppWidget(notifView.layoutId, notifView)
         var notification = builder.build()
         val notif_intent = Intent(applicationContext, StackRemoteViewsFactory::class.java)
