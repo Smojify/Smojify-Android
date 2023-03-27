@@ -97,6 +97,11 @@ class MainActivity : AppCompatActivity() {
                         reactToTrack(reacting_emoji, emoji)
                         inputText.text.clear()
                         isUpdating = false // Set the flag back to false
+                        val message = "Adding song to playlist !"
+                        val duration = Toast.LENGTH_LONG
+                        val context = applicationContext
+                        val toast = Toast.makeText(context, message, duration)
+                        toast.show()
                     }
                 }
             }
