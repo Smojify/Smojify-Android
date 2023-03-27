@@ -46,6 +46,8 @@
         android:layout_height="wrap_content"
         android:layout_below="@id/emoji_input"
         android:layout_centerHorizontal="true"
-        android:textSize="48sp"/>
+        android:layout_centerVertical="true"
+        android:textSize="48sp"
+        android:textColor="@android:color/white"/>
 
 </RelativeLayout>
