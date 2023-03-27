@@ -206,8 +206,7 @@ fun addTrackToPlaylist(view: View, track_uri:String, emoji:String, position: Int
     }
 }
 
-fun getplaylist(view: View, emoji: String):playlist_response
-{
+fun getplaylist(view: View, emoji: String): playlist_response {
     val emojiName = getEmojiName(emoji)!!
     val client = HttpClient() {
         install(ContentNegotiation) {
@@ -218,24 +217,35 @@ fun getplaylist(view: View, emoji: String):playlist_response
                 protocol = URLProtocol.HTTPS
                 host = "api.spotify.com"
                 path("/v1/me/")
-                //parameters.append("token", "abc123")
             }
             header("Authorization", "Bearer " + spotify_webtoken)
         }
     }
-    lateinit var playlists:playlists_list
+
+    lateinit var playlists: playlists_list
+    var result: playlist_response? = null
+    var offset = 0
     runBlocking {
-        val response: HttpResponse = client.get("playlists"){
-            parameter("limit", 50)
-            parameter("offset", 0)
-        }
-        val json = response.body<playlists_list>()
-        //Log.e("Playlist name", response.body())
-        playlists =  json
+        do {
+            val response: HttpResponse = client.get("playlists") {
+                parameter("limit", 50)
+                parameter("offset", offset)
+            }
+            val json = response.body<playlists_list>()
+            playlists = json
+            val playlist = playlists.items.find { it.name.equals(emojiName) }
+            if (playlist != null) {
+                result = playlist
+                break
+            }
+            offset += 50
+        } while (playlists.items.isNotEmpty())
     }
-    val playlist = playlists.items.find { it.name.equals(emojiName) }
-    if (playlist != null)
-        return playlist
+
+    if (result != null) {
+        return result!!
+    }
+
     return create_playlist(view, emoji)
 }
 
