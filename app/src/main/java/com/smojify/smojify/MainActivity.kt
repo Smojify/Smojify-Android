@@ -83,32 +83,18 @@ class MainActivity : AppCompatActivity() {
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
                 s?.let {
                     val text = it.toString()
-                    val emojiMatcher = Pattern.compile("[\uD83C-\uDBFF\uDC00-\uDFFF]+").matcher(text)
-
-                    // Check if there's an emoji in the text
-                    if (emojiMatcher.find()) {
                         // React to the emoji
-                        val emoji = emojiMatcher.group()
+                        val emoji = text
                         Toast.makeText(this@MainActivity, "Reacting to $emoji", Toast.LENGTH_SHORT).show()
                         Log.e("TRACK_ID:", current_trackid)
 
                         // Remove the emoji from the text
-                        val newString = text.replace(emoji, "")
-                        val index = newString.indexOf(emoji)
-                        if (index >= 0) {
-                            inputText.setText(newString)
-                            inputText.setSelection(index)
                             reactToTrack(inputText, emoji)
-                        } else {
-                            Toast.makeText(this@MainActivity, "Error: emoji not found in input", Toast.LENGTH_SHORT).show()
-                        }
-
-                        // Call the reactToTrack function with the track URI and emoji
+                    inputText.text.clear()
+                    // Call the reactToTrack function with the track URI and emoji
                         reactToTrack(inputText, emoji)
                     }
                 }
-            }
-
         })
 
 
