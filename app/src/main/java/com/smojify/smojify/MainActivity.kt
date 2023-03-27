@@ -15,8 +15,10 @@ import android.util.Log
 import android.view.View
 import android.widget.EditText
 import android.widget.RemoteViews
+import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.widget.AppCompatImageView
 import androidx.emoji2.bundled.BundledEmojiCompatConfig
 import androidx.emoji2.text.EmojiCompat
 import com.google.android.material.internal.ContextUtils.getActivity
@@ -69,6 +71,7 @@ class MainActivity : AppCompatActivity() {
 
         val inputText = findViewById<EditText>(R.id.emoji_input)
 
+        lateinit var reacting_emoji: TextView // Declare the view
 
 
         inputText.addTextChangedListener(object : TextWatcher {
@@ -80,21 +83,24 @@ class MainActivity : AppCompatActivity() {
                 // Not needed for this implementation
             }
 
+            var isUpdating = false // Add this flag at the top of your class
+
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
                 s?.let {
                     val text = it.toString()
-                        // React to the emoji
-                        val emoji = text
-                        Toast.makeText(this@MainActivity, "Reacting to $emoji", Toast.LENGTH_SHORT).show()
-                        Log.e("TRACK_ID:", current_trackid)
-
-                        // Remove the emoji from the text
-                            reactToTrack(inputText, emoji)
-                    inputText.text.clear()
-                    // Call the reactToTrack function with the track URI and emoji
-                        reactToTrack(inputText, emoji)
+                    if (!text.isBlank() && !isUpdating) { // Check if the flag is false before proceeding
+                        isUpdating = true // Set the flag to true
+                        val reacting_emoji = findViewById<TextView>(R.id.reacting_emoji)
+                        val emoji = inputText.text.toString()
+                        reacting_emoji.text = emoji
+                        reactToTrack(reacting_emoji, emoji)
+                        inputText.text.clear()
+                        isUpdating = false // Set the flag back to false
                     }
                 }
+            }
+
+
         })
 
 

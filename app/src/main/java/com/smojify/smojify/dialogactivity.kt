@@ -199,13 +199,3 @@ class SimpleFragmentPagerAdapter(fm: FragmentActivity?) : FragmentStateAdapter(f
         return 9
     }
 }
-
-fun loadBitmapFromView(v: View): Bitmap? {
-    val b =
-        Bitmap.createBitmap(40,40, Bitmap.Config.ARGB_8888)
-    val c = Canvas(b)
-    v.layout(v.left, v.top, v.right, v.bottom)
-    v.drawToBitmap(Bitmap.Config.ARGB_8888)
-    v.draw(c)
-    return v.drawToBitmap(Bitmap.Config.ARGB_8888)
-}

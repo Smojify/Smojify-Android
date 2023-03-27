@@ -2,7 +2,11 @@ package com.smojify.smojify
 
 import android.content.Context
 import android.content.Intent
+import android.graphics.Bitmap
+import android.graphics.Canvas
 import android.os.Build
+import android.view.View
+import androidx.core.view.drawToBitmap
 import kotlinx.coroutines.*
 import org.jsoup.Jsoup
 
@@ -29,4 +33,14 @@ fun getEmojiName(emoji: String): String? {
         }
     }
     return title
+}
+
+fun loadBitmapFromView(v: View): Bitmap? {
+    val b =
+        Bitmap.createBitmap(40,40, Bitmap.Config.ARGB_8888)
+    val c = Canvas(b)
+    v.layout(v.left, v.top, v.right, v.bottom)
+    v.drawToBitmap(Bitmap.Config.ARGB_8888)
+    v.draw(c)
+    return v.drawToBitmap(Bitmap.Config.ARGB_8888)
 }

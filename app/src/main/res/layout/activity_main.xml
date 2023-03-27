@@ -36,15 +36,16 @@
         android:layout_below="@+id/button"
         android:hint="Type Emojis Here"
         android:inputType="text"
-        android:padding="16dp"/>
+        android:padding="16dp"
+        android:textCursorDrawable="@null"/>
 
     <!-- Fourth Part: Display Reacting Emoji -->
-    <ImageView
+    <TextView
         android:id="@+id/reacting_emoji"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/emoji_input"
+        android:layout_below="@id/emoji_input"
         android:layout_centerHorizontal="true"
-        android:padding="16dp"/>
+        android:textSize="48sp"/>
 
 </RelativeLayout>
