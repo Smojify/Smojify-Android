@@ -296,8 +296,9 @@ fun create_playlist(view: View, emoji:String):playlist_response
                 //accept(ContentType.Application.Json)
                 //contentType(ContentType.Image.JPEG)
                 val bitmap = loadBitmapFromView(view)
+                Log.e("BITMAP", bitmap.toString())
                 val stream = ByteArrayOutputStream()
-                bitmap!!.compress(Bitmap.CompressFormat.JPEG, 90, stream)
+                bitmap!!.compress(Bitmap.CompressFormat.PNG, 90, stream)
                 val image = stream.toByteArray()
                 var base64 = Base64.encodeToString(image, 0, image.size, 0)
                 //base64 = base64

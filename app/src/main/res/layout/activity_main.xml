@@ -7,7 +7,9 @@
     android:layout_centerVertical="true"
     android:gravity="center|center_vertical"
     android:textAlignment="gravity"
-    tools:context=".MainActivity">
+    tools:context=".MainActivity"
+    android:background="#000000"
+    >
 
     <!-- First Part: Logo -->
     <ImageView
@@ -39,7 +41,8 @@
         android:layout_marginTop="16dp"
         android:textColor="@android:color/white"
         android:textSize="48sp"
-        android:gravity="center_vertical|center_horizontal" />
+        android:gravity="center_vertical|center_horizontal"
+        android:background="#000000FF" />
 
     <!-- Fourth Part: Text Input -->
     <EditText
