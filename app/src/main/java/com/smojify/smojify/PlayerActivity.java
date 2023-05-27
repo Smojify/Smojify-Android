@@ -3,13 +3,14 @@ package com.smojify.smojify;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.squareup.picasso.Picasso;
+import com.spotify.protocol.client.CallResult;
 
 import com.spotify.android.appremote.api.ConnectionParams;
 import com.spotify.android.appremote.api.Connector;
@@ -74,8 +75,14 @@ public class PlayerActivity extends AppCompatActivity {
 
         songTitle.setText(track.name);
         artistName.setText(track.artist.name);
-        cover.setImageURI(null);
-        Picasso.get().load(track.imageUri.toString()).into(cover);
+        mSpotifyAppRemote.getImagesApi().getImage(
+                track.imageUri
+        ).setResultCallback(
+                new CallResult.ResultCallback<Bitmap>() {
+                    @Override public void onResult(Bitmap bitmap) {
+                        cover.setImageBitmap(bitmap);
+                    }
+                });
     }
 
     @Override
