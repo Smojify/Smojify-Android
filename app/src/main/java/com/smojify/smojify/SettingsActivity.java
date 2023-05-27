@@ -151,10 +151,10 @@ public class SettingsActivity extends AppCompatActivity {
         });
         switchPlaylistContribution.setChecked(sharedPreferences.getBoolean("isPlaylistsCollaborative", false));
         if (switchPlaylistContribution.isChecked()) {
-            textViewContributionStatus.setText("Your playlist will be collaborative");
+            textViewContributionStatus.setText("Your playlists will be collaborative");
             textViewContributionStatus.setTextColor(getResources().getColor(R.color.green));
         } else {
-            textViewContributionStatus.setText("Your playlist won't be collaborative");
+            textViewContributionStatus.setText("Your playlists won't be collaborative");
             textViewContributionStatus.setTextColor(getResources().getColor(R.color.red));
         }
         switchPlaylistContribution.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
