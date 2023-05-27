@@ -2,14 +2,26 @@ package com.smojify.smojify;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.InputType;
+import android.text.TextUtils;
+import android.text.TextWatcher;
 import android.util.Log;
+import android.view.View;
+import android.view.inputmethod.InputMethodManager;
+import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import com.spotify.protocol.client.CallResult;
 
 import com.spotify.android.appremote.api.ConnectionParams;
@@ -21,7 +33,15 @@ import com.spotify.sdk.android.auth.AuthorizationClient;
 import com.spotify.sdk.android.auth.AuthorizationRequest;
 import com.spotify.sdk.android.auth.AuthorizationResponse;
 
+import com.vdurmont.emoji.EmojiManager;
+
+
+import java.lang.reflect.Type;
 import java.net.URI;
+import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Queue;
 
 public class PlayerActivity extends AppCompatActivity {
 
@@ -66,6 +86,68 @@ public class PlayerActivity extends AppCompatActivity {
                         updatePlayerState(track);
                     }
                 });
+
+        SharedPreferences sharedPreferences = getSharedPreferences("ReactionQueue", Context.MODE_PRIVATE);
+        String reactionListJson = sharedPreferences.getString("reactionQueue", "");
+        Gson gson = new Gson();
+        Type reactionListType = new TypeToken<List<Reaction>>(){}.getType();
+        List<Reaction> reactionList = gson.fromJson(reactionListJson, reactionListType);
+        Queue<Reaction> reactionQueue = new LinkedList<>(reactionList);
+
+        EditText reactingEmojis = findViewById(R.id.reactingEmojis);
+        ImageButton logoButton = findViewById(R.id.logoButton);
+        logoButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                reactingEmojis.setFocusableInTouchMode(true);
+                reactingEmojis.requestFocus();
+                InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+                imm.showSoftInput(reactingEmojis, InputMethodManager.SHOW_IMPLICIT);
+                reactingEmojis.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_NORMAL | InputType.TYPE_TEXT_FLAG_MULTI_LINE | InputType.TYPE_TEXT_FLAG_AUTO_CORRECT | InputType.TYPE_TEXT_FLAG_CAP_SENTENCES | InputType.TYPE_TEXT_FLAG_AUTO_COMPLETE);
+            }
+        });
+
+
+        TextWatcher textWatcher = new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+                // This method is called before the text is changed
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                // This method is called when the text is being changed
+                // Add items to the queue based on the input text
+                String inputText = s.toString();
+                if (TextUtils.isEmpty(inputText.trim())) {
+                    return;
+                }
+                String trackUri = ""; // Set the track URI based on your logic
+                if (EmojiManager.isEmoji(inputText)) {
+                    Reaction reaction = new Reaction(inputText, trackUri);
+                    reactionQueue.add(reaction);
+                }
+                reactingEmojis.setText("");
+                // Convert the list to a JSON string
+                String reactionListJson = gson.toJson(reactionList);
+
+// Save the JSON string to shared preferences
+                SharedPreferences sharedPreferences = getSharedPreferences("ReactionQueue", Context.MODE_PRIVATE);
+                SharedPreferences.Editor editor = sharedPreferences.edit();
+                editor.putString("reactionQueue", reactionListJson);
+                editor.apply();
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+                // This method is called after the text has been changed
+                // Process the new text as needed
+            }
+        };
+
+// Add the TextWatcher to the EditText
+        reactingEmojis.addTextChangedListener(textWatcher);
+
     }
 
     private void updatePlayerState(Track track) {
