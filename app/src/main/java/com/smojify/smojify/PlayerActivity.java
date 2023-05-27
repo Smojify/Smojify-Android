@@ -3,15 +3,24 @@ package com.smojify.smojify;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
+import android.widget.ImageView;
+import android.widget.TextView;
+
+import com.squareup.picasso.Picasso;
 
 import com.spotify.android.appremote.api.ConnectionParams;
 import com.spotify.android.appremote.api.Connector;
 import com.spotify.android.appremote.api.SpotifyAppRemote;
+import com.spotify.protocol.types.Image;
+import com.spotify.protocol.types.Track;
 import com.spotify.sdk.android.auth.AuthorizationClient;
 import com.spotify.sdk.android.auth.AuthorizationRequest;
 import com.spotify.sdk.android.auth.AuthorizationResponse;
+
+import java.net.URI;
 
 public class PlayerActivity extends AppCompatActivity {
 
@@ -47,12 +56,33 @@ public class PlayerActivity extends AppCompatActivity {
 
     protected void connected() {
         // Then we will write some more code here.
+        // Subscribe to PlayerState
+        mSpotifyAppRemote.getPlayerApi()
+                .subscribeToPlayerState()
+                .setEventCallback(playerState -> {
+                    final Track track = playerState.track;
+                    if (track != null) {
+                        updatePlayerState(track);
+                    }
+                });
+    }
+
+    private void updatePlayerState(Track track) {
+        TextView songTitle = findViewById(R.id.songTitleTextView);
+        TextView artistName = findViewById(R.id.artistTextView);
+        ImageView cover = findViewById(R.id.albumCoverImageView);
+
+        songTitle.setText(track.name);
+        artistName.setText(track.artist.name);
+        cover.setImageURI(null);
+        Picasso.get().load(track.imageUri.toString()).into(cover);
     }
 
     @Override
     protected void onStop() {
         super.onStop();
         // Aaand we will finish off here.
+        SpotifyAppRemote.disconnect(mSpotifyAppRemote);
     }
 
     protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
