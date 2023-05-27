@@ -1,9 +1,213 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="16dp"
     tools:context=".SettingsActivity">
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+    <!-- Part 1: World Contribution -->
+    <LinearLayout
+        android:id="@+id/llWorldContribution"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/tvWorldContribution"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="World Contribution"
+            android:textSize="18sp" />
+
+        <Switch
+            android:id="@+id/switchWorldContribution"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:checked="true"
+            android:textColor="@color/green" />
+        <TextView
+            android:id="@+id/switchWorldContributionStatus"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"/>
+
+    </LinearLayout>
+
+    <!-- Part 2: Playlist Privacy -->
+    <LinearLayout
+        android:id="@+id/llPlaylistPrivacy"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:layout_marginTop="16dp">
+
+        <TextView
+            android:id="@+id/tvPlaylistPrivacy"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Playlist Privacy"
+            android:textSize="18sp" />
+
+        <Switch
+            android:id="@+id/switchPlaylistPrivacy"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:checked="true"/>
+        <TextView
+            android:id="@+id/switchPlaylistPrivacyStatus"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"/>
+        <LinearLayout
+            android:id="@+id/llPlaylistPrivacySubSettings"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginTop="8dp">
+
+            <CheckBox
+                android:id="@+id/checkboxUpdatePlaylistPrivacy"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:checked="true"/>
+
+            <TextView
+                android:id="@+id/tvUpdatePlaylistPrivacy"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Update already existing playlists"
+                android:layout_marginEnd="8dp" />
+
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+    <!-- Part 3: Playlist Contribution -->
+    <LinearLayout
+        android:id="@+id/llPlaylistContribution"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:layout_marginTop="16dp">
+
+        <TextView
+            android:id="@+id/tvPlaylistContribution"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Playlist Contribution"
+            android:textSize="18sp" />
+
+        <Switch
+            android:id="@+id/switchPlaylistContribution"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:checked="true"/>
+        <TextView
+            android:id="@+id/switchPlaylistContributionStatus"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"/>
+
+        <LinearLayout
+            android:id="@+id/llPlaylistContributionSubSettings"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginTop="8dp">
+
+            <CheckBox
+                android:id="@+id/checkboxUpdatePlaylistContribution"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:checked="true"/>
+
+            <TextView
+                android:id="@+id/tvUpdatePlaylistContribution"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Update already existing playlists"
+                android:layout_marginEnd="8dp" />
+
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+    <!-- Part 4: Emoji Style -->
+    <LinearLayout
+        android:id="@+id/llEmojiStyle"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:layout_marginTop="16dp">
+
+        <TextView
+            android:id="@+id/tvEmojiStyle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Emoji Style"
+            android:textSize="18sp" />
+
+        <RadioGroup
+            android:id="@+id/radioGroupEmojiStyle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:checkedButton="@id/radioButtonDevice">
+
+            <RadioButton
+                android:id="@+id/radioButtonDevice"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Device" />
+
+            <RadioButton
+                android:id="@+id/radioButtonGoogle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Google" />
+
+            <RadioButton
+                android:id="@+id/radioButtonApple"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Apple" />
+
+            <RadioButton
+                android:id="@+id/radioButtonTwitter"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Twitter" />
+
+            <RadioButton
+                android:id="@+id/radioButtonOpenmoji"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Openmoji" />
+
+        </RadioGroup>
+
+        <LinearLayout
+            android:id="@+id/llEmojiStyleSubSettings"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginTop="8dp">
+
+            <CheckBox
+                android:id="@+id/checkboxUpdateEmojiStyle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:checked="true"/>
+
+            <TextView
+                android:id="@+id/tvUpdateEmojiStyle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Update already existing playlists"
+                android:layout_marginEnd="8dp" />
+
+
+        </LinearLayout>
+    </LinearLayout>
+</LinearLayout>

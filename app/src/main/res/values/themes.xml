@@ -6,4 +6,9 @@
     </style>
 
     <style name="Theme.Smojify" parent="Base.Theme.Smojify" />
+
+    <style name="SwitchGreenStyle" parent="Widget.AppCompat.CompoundButton.Switch">
+        <item name="android:thumbTint">@color/green</item> <!-- Color when enabled -->
+        <item name="android:trackTint">@color/switch_track_color</item> <!-- Color of the track -->
+    </style>
 </resources>
