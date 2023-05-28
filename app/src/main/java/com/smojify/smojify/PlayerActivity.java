@@ -144,7 +144,7 @@ public class PlayerActivity extends AppCompatActivity {
                     return;
                 }
                 Log.e("", "Update Text: " + inputText);
-                reactingEmojis.setText(" ");
+                reactingEmojis.getText().clear();
                 String trackUri = ""; // Set the track URI based on your logic
                 Log.e("", "User Reaction: " + inputText);
                 drawEmoji(inputText);
