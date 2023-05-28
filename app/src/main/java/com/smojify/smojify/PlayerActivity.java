@@ -107,25 +107,23 @@ public class PlayerActivity extends AppCompatActivity {
 
         EditText reactingEmojis = findViewById(R.id.emojiInput);
         ImageButton logoButton = findViewById(R.id.logoButton);
+        Button emojiButton = findViewById(R.id.emojiButton);
         logoButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (logoButton.getVisibility() != View.GONE) {
                     reactingEmojis.setFocusableInTouchMode(true);
                     reactingEmojis.requestFocus();
                     InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
                     imm.showSoftInput(reactingEmojis, InputMethodManager.SHOW_FORCED);
-
-                    // Retrieve the input method list
-                    List<InputMethodInfo> inputMethodList = imm.getInputMethodList();
-
-                    // Log the information for each input method
-                    for (InputMethodInfo info : inputMethodList) {
-                        String packageName = info.getPackageName();
-                        String inputMethodId = info.getId();
-                        Log.d("InputMethodList", "Package Name: " + packageName + ", Input Method ID: " + inputMethodId);
-                    }
-                }
+            }
+        });
+        emojiButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                reactingEmojis.setFocusableInTouchMode(true);
+                reactingEmojis.requestFocus();
+                InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+                imm.showSoftInput(reactingEmojis, InputMethodManager.SHOW_FORCED);
             }
         });
 
