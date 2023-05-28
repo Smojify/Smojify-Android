@@ -57,4 +57,7 @@ public class SpotifyUtil {
     public String getCurrentPlaylistName() {
         return this.currentPlaylist;
     }
+
+    public void reactToTrack(String trackUri, String emoji) {
+    }
 }

@@ -150,7 +150,7 @@ public class PlayerActivity extends AppCompatActivity {
                 String trackUri = ""; // Set the track URI based on your logic
                 Log.e("", "User Reaction: " + inputText);
                 drawEmoji(inputText);
-                reactToSpotify(inputText, currentTrackUri);
+                spotify.reactToTrack(trackUri, playlistName);
             }
 
             @Override
@@ -163,26 +163,6 @@ public class PlayerActivity extends AppCompatActivity {
 // Add the TextWatcher to the EditText
         reactingEmojis.addTextChangedListener(textWatcher);
 
-    }
-
-    private void reactToSpotify(String emoji, String trackUri) {
-        // Retrieve Emoji Name
-        String emojiSlug = emojiManager.getEmojiSlugName(emoji, new EmojiUtil.EmojiNameListener() {
-            @Override
-            public void onEmojiNameFetched(String emojiSlugName) {
-                if (emojiSlugName != null) {
-                    // Do something with the emojiName
-                    playlistName = emoji + " " + emojiSlugName;
-                    Log.d("Playlist Name", emojiSlugName);
-                    spotify.updatePlaylistState(playlistName);
-                    spotify.updateTrackInPlaylist(false, trackUri, playlistName);
-                    // spotify.updateTrackInPlaylist("World", trackUri, playlistName);
-                } else {
-                    // Handle error or no data case
-                    Log.d("Emoji Name", "Failed to fetch emoji name");
-                }
-            }
-        });
     }
 
     private void drawEmoji(String inputText) {
