@@ -4,52 +4,25 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.graphics.Bitmap;
-import android.net.Uri;
 import android.os.Bundle;
 import android.text.Editable;
-import android.text.InputType;
 import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.util.Log;
 import android.view.View;
-import android.view.inputmethod.InputMethodInfo;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
-import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
 import com.spotify.protocol.client.CallResult;
 
 import com.spotify.android.appremote.api.ConnectionParams;
 import com.spotify.android.appremote.api.Connector;
 import com.spotify.android.appremote.api.SpotifyAppRemote;
-import com.spotify.protocol.types.Image;
-import com.spotify.protocol.types.Track;
-import com.spotify.sdk.android.auth.AuthorizationClient;
-import com.spotify.sdk.android.auth.AuthorizationRequest;
-import com.spotify.sdk.android.auth.AuthorizationResponse;
-
-import com.vdurmont.emoji.EmojiManager;
-
-
-import java.lang.reflect.Type;
-import java.net.URI;
-import java.util.ArrayList;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Queue;
-import com.spotify.protocol.client.CallResult;
-import com.spotify.android.appremote.api.ConnectionParams;
-import com.spotify.android.appremote.api.Connector;
-import com.spotify.android.appremote.api.SpotifyAppRemote;
-import com.spotify.protocol.types.Image;
 import com.spotify.protocol.types.Track;
 import com.spotify.sdk.android.auth.AuthorizationClient;
 import com.spotify.sdk.android.auth.AuthorizationRequest;
@@ -101,6 +74,7 @@ public class PlayerActivity extends AppCompatActivity {
                 .setEventCallback(playerState -> {
                     final Track track = playerState.track;
                     if (track != null) {
+                        currentTrackUri = track.uri;
                         updatePlayerState(track);
                     }
                 });
@@ -145,10 +119,10 @@ public class PlayerActivity extends AppCompatActivity {
                 }
                 Log.e("", "Update Text: " + inputText);
                 reactingEmojis.getText().clear();
-                String trackUri = ""; // Set the track URI based on your logic
                 Log.e("", "User Reaction: " + inputText);
                 drawEmoji(inputText);
-                spotify.reactToTrack(trackUri, playlistName);
+                SmojifyService.reactToTrack(getApplicationContext(), inputText, currentTrackUri);
+
             }
 
             @Override
@@ -210,7 +184,7 @@ public class PlayerActivity extends AppCompatActivity {
                 // Response was successful and contains auth token
                 case TOKEN:
                     // Handle successful response
-                    Log.e("Spotify Web Token", "OK");
+                    Log.e("Spotify Web Token", response.getAccessToken());
                     // Set the connection parameters
                     ConnectionParams connectionParams =
                             new ConnectionParams.Builder(CLIENT_ID)
@@ -223,7 +197,7 @@ public class PlayerActivity extends AppCompatActivity {
                                 @Override
                                 public void onConnected(SpotifyAppRemote spotifyAppRemote) {
                                     mSpotifyAppRemote = spotifyAppRemote;
-                                    spotify = new SpotifyUtil(mSpotifyAppRemote);
+                                    spotify = new SpotifyUtil();
                                     Log.d("MainActivity", "Connected! Yay!");
 
                                     // Now you can start interacting with App Remote

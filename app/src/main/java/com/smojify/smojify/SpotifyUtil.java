@@ -1,36 +1,31 @@
 package com.smojify.smojify;
 
 import android.util.Log;
-import android.view.View;
 
-import com.spotify.android.appremote.api.AppRemote;
 import com.spotify.android.appremote.api.SpotifyAppRemote;
-import com.spotify.protocol.client.CallResult;
-import com.spotify.protocol.types.PlayerState;
 
 public class SpotifyUtil {
+    private static final String API_BASE_URL = "https://api.spotify.com/v1";
+
     private static final String SMOJIFY_URI = "1234";
     private String userUri;
     private String currentPlaylist;
     private SpotifyAppRemote appRemote;
 
-    public SpotifyUtil(SpotifyAppRemote appRemote) {
-        this.appRemote = appRemote;
+    public SpotifyUtil() {
     }
 
-    public void updatePlaylistState(String playlistName) {
+    public String updatePlaylistState(String playlistName) {
+        Log.d("SpotifyAPI", "Updating playlist state for: " + playlistName);
+        return playlistName;
     }
 
-    public void updateTrackInPlaylist(Boolean worldwide, String trackUri, String playlistName) {
-        userUri = getUserUri();
-        if (worldwide) {
-            userUri = SMOJIFY_URI;
-        }
+    public void updateTrackInPlaylist(Boolean worldwide, String trackUri, String playlistUri) {
+        Log.d("SpotifyAPI", "Updating track state: " + trackUri + "\nIn playlist: " + playlistUri);
+    }
+    private void fetchPlaylists() {
     }
 
-    private String getUserUri() {
-        return "";
-    }
     public void removeTrackFromPlaylist() {
 
     }

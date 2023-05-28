@@ -6,6 +6,8 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class EmojiUtil {
     String emojiSlugName;
@@ -35,16 +37,19 @@ public class EmojiUtil {
                     }
                     reader.close();
 
-                    int start = response.indexOf("<h1>");
-                    int end = response.indexOf("</h1>");
-                    if (start != -1 && end != -1) {
-                        emojiSlugName = response.substring(start + 4, end).replace(" emoji", "");
+                    String regexPattern = "<title>(.+?) Emoji</title>";
+                    Pattern pattern = Pattern.compile(regexPattern);
+                    Matcher matcher = pattern.matcher(response.toString());
+                    if (matcher.find()) {
+                        String emojiSlugName = matcher.group(1);
+                        return emojiSlugName;
                     }
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
-                return emojiSlugName;
+                return null;
             }
+
 
             @Override
             protected void onPostExecute(String emojiName) {
