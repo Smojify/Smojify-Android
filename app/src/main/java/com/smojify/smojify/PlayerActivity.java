@@ -72,7 +72,6 @@ public class PlayerActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_player);
         emojiManager = new EmojiUtil();
-        spotify = new SpotifyUtil();
     }
 
     @Override
@@ -176,8 +175,9 @@ public class PlayerActivity extends AppCompatActivity {
                     playlistName = emoji + " " + emojiSlugName;
                     Log.d("Playlist Name", emojiSlugName);
                     spotify.updatePlaylistState(playlistName);
-                    spotify.updateTrackInUserPlaylist(trackUri, playlistName);
-                    spotify.updateTrackInWorldPlaylist(trackUri, playlistName);
+                    spotify.updateTrackInPlaylist(false, trackUri, playlistName);
+                    // spotify.updateTrackInPlaylist("World", trackUri, playlistName);
+
                 } else {
                     // Handle error or no data case
                     Log.d("Emoji Name", "Failed to fetch emoji name");
@@ -245,6 +245,7 @@ public class PlayerActivity extends AppCompatActivity {
                                 @Override
                                 public void onConnected(SpotifyAppRemote spotifyAppRemote) {
                                     mSpotifyAppRemote = spotifyAppRemote;
+                                    spotify = new SpotifyUtil(mSpotifyAppRemote);
                                     Log.d("MainActivity", "Connected! Yay!");
 
                                     // Now you can start interacting with App Remote
