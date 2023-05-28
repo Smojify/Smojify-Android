@@ -177,7 +177,6 @@ public class PlayerActivity extends AppCompatActivity {
                     spotify.updatePlaylistState(playlistName);
                     spotify.updateTrackInPlaylist(false, trackUri, playlistName);
                     // spotify.updateTrackInPlaylist("World", trackUri, playlistName);
-
                 } else {
                     // Handle error or no data case
                     Log.d("Emoji Name", "Failed to fetch emoji name");
@@ -199,6 +198,7 @@ public class PlayerActivity extends AppCompatActivity {
     private void updatePlayerState(Track track) {
         TextView songTitle = findViewById(R.id.songTitleTextView);
         TextView artistName = findViewById(R.id.artistTextView);
+        TextView playlistName = findViewById(R.id.playlistTextView);
         ImageView cover = findViewById(R.id.albumCoverImageView);
         currentTrackUri = track.uri;
 
