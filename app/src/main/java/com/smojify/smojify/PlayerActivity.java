@@ -45,18 +45,34 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
+import com.spotify.protocol.client.CallResult;
+import com.spotify.android.appremote.api.ConnectionParams;
+import com.spotify.android.appremote.api.Connector;
+import com.spotify.android.appremote.api.SpotifyAppRemote;
+import com.spotify.protocol.types.Image;
+import com.spotify.protocol.types.Track;
+import com.spotify.sdk.android.auth.AuthorizationClient;
+import com.spotify.sdk.android.auth.AuthorizationRequest;
+import com.spotify.sdk.android.auth.AuthorizationResponse;
 
 public class PlayerActivity extends AppCompatActivity {
 
     private static final int REQUEST_CODE = 1337;
     private static final String REDIRECT_URI = "http://localhost:8888/callback";
     private static final String CLIENT_ID = "d12d52e12c1e4b8fb0edaa8b8d7c2cec";
+    private static String currentTrackUri = "";
     private SpotifyAppRemote mSpotifyAppRemote;
+    private EmojiUtil emojiManager;
+    String playlistName;
+    SpotifyUtil spotify;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_player);
+        emojiManager = new EmojiUtil();
+        spotify = new SpotifyUtil();
     }
 
     @Override
@@ -135,6 +151,7 @@ public class PlayerActivity extends AppCompatActivity {
                 String trackUri = ""; // Set the track URI based on your logic
                 Log.e("", "User Reaction: " + inputText);
                 drawEmoji(inputText);
+                reactToSpotify(inputText, currentTrackUri);
             }
 
             @Override
@@ -149,8 +166,28 @@ public class PlayerActivity extends AppCompatActivity {
 
     }
 
+    private void reactToSpotify(String emoji, String trackUri) {
+        // Retrieve Emoji Name
+        String emojiSlug = emojiManager.getEmojiSlugName(emoji, new EmojiUtil.EmojiNameListener() {
+            @Override
+            public void onEmojiNameFetched(String emojiSlugName) {
+                if (emojiSlugName != null) {
+                    // Do something with the emojiName
+                    playlistName = emoji + " " + emojiSlugName;
+                    Log.d("Playlist Name", emojiSlugName);
+                    spotify.updatePlaylistState(playlistName);
+                    spotify.updateTrackInUserPlaylist(trackUri, playlistName);
+                    spotify.updateTrackInWorldPlaylist(trackUri, playlistName);
+                } else {
+                    // Handle error or no data case
+                    Log.d("Emoji Name", "Failed to fetch emoji name");
+                }
+            }
+        });
+    }
+
     private void drawEmoji(String inputText) {
-        Log.e("", "Darw emoji");
+        Log.e("", "Draw emoji");
         ImageButton logo = findViewById(R.id.logoButton);
         Button emoji = findViewById(R.id.emojiButton);
         logo.setVisibility(View.GONE);
@@ -163,6 +200,7 @@ public class PlayerActivity extends AppCompatActivity {
         TextView songTitle = findViewById(R.id.songTitleTextView);
         TextView artistName = findViewById(R.id.artistTextView);
         ImageView cover = findViewById(R.id.albumCoverImageView);
+        currentTrackUri = track.uri;
 
         songTitle.setText(track.name);
         artistName.setText(track.artist.name);
