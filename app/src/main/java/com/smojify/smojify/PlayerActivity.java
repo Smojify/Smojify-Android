@@ -14,11 +14,14 @@ import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.util.Log;
 import android.view.View;
+import android.view.inputmethod.InputMethodInfo;
 import android.view.inputmethod.InputMethodManager;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
@@ -87,25 +90,30 @@ public class PlayerActivity extends AppCompatActivity {
                     }
                 });
 
-        SharedPreferences sharedPreferences = getSharedPreferences("ReactionQueue", Context.MODE_PRIVATE);
-        String reactionListJson = sharedPreferences.getString("reactionQueue", "");
-        Gson gson = new Gson();
-        Type reactionListType = new TypeToken<List<Reaction>>(){}.getType();
-        List<Reaction> reactionList = gson.fromJson(reactionListJson, reactionListType);
-        Queue<Reaction> reactionQueue = new LinkedList<>(reactionList);
-
-        EditText reactingEmojis = findViewById(R.id.reactingEmojis);
+        EditText reactingEmojis = findViewById(R.id.emojiInput);
         ImageButton logoButton = findViewById(R.id.logoButton);
         logoButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                reactingEmojis.setFocusableInTouchMode(true);
-                reactingEmojis.requestFocus();
-                InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-                imm.showSoftInput(reactingEmojis, InputMethodManager.SHOW_IMPLICIT);
-                reactingEmojis.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_NORMAL | InputType.TYPE_TEXT_FLAG_MULTI_LINE | InputType.TYPE_TEXT_FLAG_AUTO_CORRECT | InputType.TYPE_TEXT_FLAG_CAP_SENTENCES | InputType.TYPE_TEXT_FLAG_AUTO_COMPLETE);
+                if (logoButton.getVisibility() != View.GONE) {
+                    reactingEmojis.setFocusableInTouchMode(true);
+                    reactingEmojis.requestFocus();
+                    InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+                    imm.showSoftInput(reactingEmojis, InputMethodManager.SHOW_FORCED);
+
+                    // Retrieve the input method list
+                    List<InputMethodInfo> inputMethodList = imm.getInputMethodList();
+
+                    // Log the information for each input method
+                    for (InputMethodInfo info : inputMethodList) {
+                        String packageName = info.getPackageName();
+                        String inputMethodId = info.getId();
+                        Log.d("InputMethodList", "Package Name: " + packageName + ", Input Method ID: " + inputMethodId);
+                    }
+                }
             }
         });
+
 
 
         TextWatcher textWatcher = new TextWatcher() {
@@ -122,20 +130,11 @@ public class PlayerActivity extends AppCompatActivity {
                 if (TextUtils.isEmpty(inputText.trim())) {
                     return;
                 }
+                Log.e("", "Update Text: " + inputText);
+                reactingEmojis.setText(" ");
                 String trackUri = ""; // Set the track URI based on your logic
-                if (EmojiManager.isEmoji(inputText)) {
-                    Reaction reaction = new Reaction(inputText, trackUri);
-                    reactionQueue.add(reaction);
-                }
-                reactingEmojis.setText("");
-                // Convert the list to a JSON string
-                String reactionListJson = gson.toJson(reactionList);
-
-// Save the JSON string to shared preferences
-                SharedPreferences sharedPreferences = getSharedPreferences("ReactionQueue", Context.MODE_PRIVATE);
-                SharedPreferences.Editor editor = sharedPreferences.edit();
-                editor.putString("reactionQueue", reactionListJson);
-                editor.apply();
+                Log.e("", "User Reaction: " + inputText);
+                drawEmoji(inputText);
             }
 
             @Override
@@ -148,6 +147,16 @@ public class PlayerActivity extends AppCompatActivity {
 // Add the TextWatcher to the EditText
         reactingEmojis.addTextChangedListener(textWatcher);
 
+    }
+
+    private void drawEmoji(String inputText) {
+        Log.e("", "Darw emoji");
+        ImageButton logo = findViewById(R.id.logoButton);
+        Button emoji = findViewById(R.id.emojiButton);
+        logo.setVisibility(View.GONE);
+        emoji.setVisibility(View.VISIBLE);
+        emoji.setText("");
+        emoji.setText(inputText);
     }
 
     private void updatePlayerState(Track track) {
