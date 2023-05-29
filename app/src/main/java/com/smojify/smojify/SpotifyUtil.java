@@ -2,7 +2,25 @@ package com.smojify.smojify;
 
 import android.util.Log;
 
+import okhttp3.Call;
+import okhttp3.Callback;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.Response;
+
 import com.spotify.android.appremote.api.SpotifyAppRemote;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.URL;
+
 
 public class SpotifyUtil {
     private static final String API_BASE_URL = "https://api.spotify.com/v1";
@@ -12,18 +30,61 @@ public class SpotifyUtil {
     private String currentPlaylist;
     private SpotifyAppRemote appRemote;
 
+
     public SpotifyUtil() {
     }
 
-    public String updatePlaylistState(String playlistName) {
-        Log.d("SpotifyAPI", "Updating playlist state for: " + playlistName);
+    public String updatePlaylistState(String playlistName, String webToken) {
+        Log.e("SPOTIFYFETCH", webToken);
+        Log.d("Spotify API", "Updating playlist state for: " + playlistName);
+        fetchPlaylists(webToken);
         return playlistName;
     }
 
-    public void updateTrackInPlaylist(Boolean worldwide, String trackUri, String playlistUri) {
-        Log.d("SpotifyAPI", "Updating track state: " + trackUri + "\nIn playlist: " + playlistUri);
+    public void updateTrackInPlaylist(Boolean worldwide, String trackUri, String playlistUri, String webToken) {
+        Log.d("Spotify API", "Updating track state: " + trackUri + "\nIn playlist: " + playlistUri);
     }
-    private void fetchPlaylists() {
+
+    private void fetchPlaylists(String webToken) {
+        new Thread(() -> {
+            try {
+                URL url = new URL(API_BASE_URL + "/me/playlists");
+                HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+                connection.setRequestMethod("GET");
+                connection.setRequestProperty("Authorization", "Bearer " + webToken);
+
+                int responseCode = connection.getResponseCode();
+                if (responseCode == HttpURLConnection.HTTP_OK) {
+                    InputStream inputStream = connection.getInputStream();
+                    BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
+                    StringBuilder response = new StringBuilder();
+                    String line;
+
+                    while ((line = reader.readLine()) != null) {
+                        response.append(line);
+                    }
+
+                    reader.close();
+                    inputStream.close();
+
+                    JSONObject responseJson = new JSONObject(response.toString());
+                    JSONArray playlistsJson = responseJson.getJSONArray("items");
+
+                    for (int i = 0; i < playlistsJson.length(); i++) {
+                        JSONObject playlistJson = playlistsJson.getJSONObject(i);
+                        String playlistName = playlistJson.getString("name");
+                        // Process the retrieved playlist name
+                        Log.d("SpotifyUtil", "Retrieved playlist: " + playlistName);
+                    }
+                } else {
+                    Log.e("Spotify API", "Failed to fetch playlists: " + responseCode + " - " + connection.getResponseMessage());
+                }
+
+                connection.disconnect();
+            } catch (IOException | JSONException e) {
+                Log.e("Spotify API", "Failed to fetch playlists: " + e.getMessage());
+            }
+        }).start();
     }
 
     public void removeTrackFromPlaylist() {

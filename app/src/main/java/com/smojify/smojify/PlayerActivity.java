@@ -38,6 +38,8 @@ public class PlayerActivity extends AppCompatActivity {
     private EmojiUtil emojiManager;
     String playlistName;
     SpotifyUtil spotify;
+    private SmojifyService smojifyService;
+    private String spotifyWebToken;
 
 
     @Override
@@ -45,26 +47,26 @@ public class PlayerActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_player);
         emojiManager = new EmojiUtil();
+        smojifyService = new SmojifyService();
     }
 
     @Override
     protected void onStart() {
         super.onStart();
-        // We will start writing our code here.
-        AuthorizationRequest.Builder builder =
-                new AuthorizationRequest.Builder(CLIENT_ID, AuthorizationResponse.Type.TOKEN, REDIRECT_URI);
-
-        builder.setScopes(new String []{
+        AuthorizationRequest.Builder builder = new AuthorizationRequest.Builder(CLIENT_ID, AuthorizationResponse.Type.TOKEN, REDIRECT_URI);
+        builder.setScopes(new String[] {
                 "streaming",
                 "playlist-read-private",
                 "playlist-read-collaborative",
                 "playlist-modify-private",
                 "playlist-modify-public",
-                "ugc-image-upload"});
-        AuthorizationRequest request = builder.build();
+                "ugc-image-upload"
+        });
 
+        AuthorizationRequest request = builder.build();
         AuthorizationClient.openLoginActivity(this, REQUEST_CODE, request);
     }
+
 
     protected void connected() {
         // Then we will write some more code here.
@@ -121,8 +123,7 @@ public class PlayerActivity extends AppCompatActivity {
                 reactingEmojis.getText().clear();
                 Log.e("", "User Reaction: " + inputText);
                 drawEmoji(inputText);
-                SmojifyService.reactToTrack(getApplicationContext(), inputText, currentTrackUri);
-
+                smojifyService.reactToTrack(getApplicationContext(), inputText, currentTrackUri, spotifyWebToken);
             }
 
             @Override
@@ -184,7 +185,10 @@ public class PlayerActivity extends AppCompatActivity {
                 // Response was successful and contains auth token
                 case TOKEN:
                     // Handle successful response
-                    Log.e("Spotify Web Token", response.getAccessToken());
+                    if (response.getError() == null) {
+                    spotifyWebToken = response.getAccessToken();
+                    Log.d("Spotify Web Token", spotifyWebToken);
+                    smojifyService.startService(this);
                     // Set the connection parameters
                     ConnectionParams connectionParams =
                             new ConnectionParams.Builder(CLIENT_ID)
@@ -211,6 +215,9 @@ public class PlayerActivity extends AppCompatActivity {
                                     // Something went wrong when attempting to connect! Handle errors here
                                 }
                             });
+                    } else {
+                        Log.e("Spotify Web Token", "Error obtaining token: " + response.getError());
+                    }
                     break;
 
                 // Auth flow returned an error
