@@ -48,44 +48,59 @@ public class SpotifyUtil {
     private void fetchPlaylists(String webToken) {
         new Thread(() -> {
             try {
-                URL url = new URL(API_BASE_URL + "/me/playlists");
-                HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-                connection.setRequestMethod("GET");
-                connection.setRequestProperty("Authorization", "Bearer " + webToken);
+                int offset = 0;
+                int limit = 50;
+                boolean hasMorePlaylists = true;
 
-                int responseCode = connection.getResponseCode();
-                if (responseCode == HttpURLConnection.HTTP_OK) {
-                    InputStream inputStream = connection.getInputStream();
-                    BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
-                    StringBuilder response = new StringBuilder();
-                    String line;
+                while (hasMorePlaylists) {
+                    URL url = new URL(API_BASE_URL + "/me/playlists?limit=" + limit + "&offset=" + offset);
+                    HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+                    connection.setRequestMethod("GET");
+                    connection.setRequestProperty("Authorization", "Bearer " + webToken);
 
-                    while ((line = reader.readLine()) != null) {
-                        response.append(line);
+                    int responseCode = connection.getResponseCode();
+                    if (responseCode == HttpURLConnection.HTTP_OK) {
+                        InputStream inputStream = connection.getInputStream();
+                        BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
+                        StringBuilder response = new StringBuilder();
+                        String line;
+
+                        while ((line = reader.readLine()) != null) {
+                            response.append(line);
+                        }
+
+                        reader.close();
+                        inputStream.close();
+
+                        JSONObject responseJson = new JSONObject(response.toString());
+                        JSONArray playlistsJson = responseJson.getJSONArray("items");
+
+                        for (int i = 0; i < playlistsJson.length(); i++) {
+                            JSONObject playlistJson = playlistsJson.getJSONObject(i);
+                            String playlistName = playlistJson.getString("name");
+                            // Process the retrieved playlist name
+                            Log.d("SpotifyUtil", "Retrieved playlist: " + playlistName);
+                        }
+
+                        // Check if there are more playlists to fetch
+                        if (playlistsJson.length() < limit) {
+                            hasMorePlaylists = false;
+                        } else {
+                            offset += limit;
+                        }
+                    } else {
+                        Log.e("Spotify API", "Failed to fetch playlists: " + responseCode + " - " + connection.getResponseMessage());
+                        hasMorePlaylists = false; // Stop fetching playlists on error
                     }
 
-                    reader.close();
-                    inputStream.close();
-
-                    JSONObject responseJson = new JSONObject(response.toString());
-                    JSONArray playlistsJson = responseJson.getJSONArray("items");
-
-                    for (int i = 0; i < playlistsJson.length(); i++) {
-                        JSONObject playlistJson = playlistsJson.getJSONObject(i);
-                        String playlistName = playlistJson.getString("name");
-                        // Process the retrieved playlist name
-                        Log.d("SpotifyUtil", "Retrieved playlist: " + playlistName);
-                    }
-                } else {
-                    Log.e("Spotify API", "Failed to fetch playlists: " + responseCode + " - " + connection.getResponseMessage());
+                    connection.disconnect();
                 }
-
-                connection.disconnect();
             } catch (IOException | JSONException e) {
                 Log.e("Spotify API", "Failed to fetch playlists: " + e.getMessage());
             }
         }).start();
     }
+
 
     public void removeTrackFromPlaylist() {
 
