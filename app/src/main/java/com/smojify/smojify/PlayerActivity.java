@@ -5,6 +5,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.graphics.Canvas;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextUtils;
@@ -123,8 +124,15 @@ public class PlayerActivity extends AppCompatActivity {
                 reactingEmojis.getText().clear();
                 Log.e("", "User Reaction: " + inputText);
                 drawEmoji(inputText);
-                smojifyService.reactToTrack(getApplicationContext(), inputText, currentTrackUri, spotifyWebToken);
+
+                // Get the bitmap from the emojiButton
+                Button emojiButton = findViewById(R.id.emojiButton);
+                Bitmap emojiBitmap = getBitmapFromView(emojiButton);
+
+                // Send the bitmap to the SmojifyService
+                smojifyService.reactToTrack(getApplicationContext(), inputText, emojiBitmap, currentTrackUri, spotifyWebToken);
             }
+
 
             @Override
             public void afterTextChanged(Editable s) {
@@ -233,4 +241,11 @@ public class PlayerActivity extends AppCompatActivity {
             }
         }
     }
+    private Bitmap getBitmapFromView(View view) {
+        Bitmap bitmap = Bitmap.createBitmap(view.getWidth(), view.getHeight(), Bitmap.Config.ARGB_8888);
+        Canvas canvas = new Canvas(bitmap);
+        view.draw(canvas);
+        return bitmap;
+    }
+
 }
