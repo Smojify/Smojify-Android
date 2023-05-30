@@ -3,6 +3,7 @@ package com.smojify.smojify;
 import android.app.IntentService;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.util.Log;
 
 import com.spotify.android.appremote.api.SpotifyAppRemote;
@@ -32,7 +33,7 @@ public class SmojifyService extends IntentService {
         Log.d("Smojify Service", "Service started correctly");
     }
 
-    public void reactToTrack(Context context, String emoji, String trackUri, String token) {
+    public void reactToTrack(Context context, String emoji, Bitmap emojiBitmap, String trackUri, String token) {
         Intent intent = new Intent(context, SmojifyService.class);
         intent.setAction(ACTION_REACT_TO_TRACK);
         intent.putExtra(EXTRA_EMOJI, emoji);
