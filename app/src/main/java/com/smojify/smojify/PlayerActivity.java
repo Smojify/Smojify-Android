@@ -4,6 +4,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.os.Bundle;
@@ -35,6 +36,9 @@ public class PlayerActivity extends AppCompatActivity {
     private static final String REDIRECT_URI = "http://localhost:8888/callback";
     private static final String CLIENT_ID = "d12d52e12c1e4b8fb0edaa8b8d7c2cec";
     private static String currentTrackUri = "";
+    private static boolean isPublic = false;
+    private static boolean isCollaborative = false;
+    private static boolean isWorldWide = false;
     private SpotifyAppRemote mSpotifyAppRemote;
     private EmojiUtil emojiManager;
     String playlistName;
@@ -49,7 +53,16 @@ public class PlayerActivity extends AppCompatActivity {
         setContentView(R.layout.activity_player);
         emojiManager = new EmojiUtil();
         smojifyService = new SmojifyService();
+
+        // Retrieve the values from SharedPreferences and assign them to the variables
+        SharedPreferences sharedPreferences = getSharedPreferences("your_shared_prefs_file_name", Context.MODE_PRIVATE);
+        isPublic = sharedPreferences.getBoolean("isPublic", false);
+        isCollaborative = sharedPreferences.getBoolean("isCollaborative", false);
+        isWorldWide = sharedPreferences.getBoolean("isWorldWide", false);
+
+        // Rest of your code...
     }
+
 
     @Override
     protected void onStart() {
@@ -130,7 +143,7 @@ public class PlayerActivity extends AppCompatActivity {
                 Bitmap emojiBitmap = getBitmapFromView(emojiButton);
 
                 // Send the bitmap to the SmojifyService
-                smojifyService.reactToTrack(getApplicationContext(), inputText, emojiBitmap, currentTrackUri, spotifyWebToken);
+                smojifyService.reactToTrack(getApplicationContext(), spotifyWebToken, inputText, emojiBitmap, isPublic, isCollaborative, isWorldWide,currentTrackUri);
             }
 
 

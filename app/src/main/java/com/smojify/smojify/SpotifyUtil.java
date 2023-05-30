@@ -1,12 +1,8 @@
 package com.smojify.smojify;
 
+import android.graphics.Bitmap;
+import android.util.Base64;
 import android.util.Log;
-
-import okhttp3.Call;
-import okhttp3.Callback;
-import okhttp3.OkHttpClient;
-import okhttp3.Request;
-import okhttp3.Response;
 
 import com.spotify.android.appremote.api.SpotifyAppRemote;
 
@@ -15,11 +11,18 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.BufferedReader;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
+
+import okhttp3.MediaType;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.RequestBody;
+import okhttp3.Response;
 
 
 public class SpotifyUtil {
@@ -34,22 +37,19 @@ public class SpotifyUtil {
     public SpotifyUtil() {
     }
 
-    public String updatePlaylistState(String playlistName, String webToken) {
+    public void updatePlaylistState(String webToken, String playlistName, Bitmap cover, boolean isPublic, boolean isCollaborative, boolean isWorldWide, String trackUri, boolean first) {
+
         Log.e("SPOTIFYFETCH", webToken);
         Log.d("Spotify API", "Updating playlist state for: " + playlistName);
-        fetchPlaylists(webToken);
-        return playlistName;
+        fetchPlaylists(webToken, playlistName,cover, isPublic, isCollaborative, isWorldWide, trackUri, first);
     }
 
-    public void updateTrackInPlaylist(Boolean worldwide, String trackUri, String playlistUri, String webToken) {
-        Log.d("Spotify API", "Updating track state: " + trackUri + "\nIn playlist: " + playlistUri);
-    }
-
-    private void fetchPlaylists(String webToken) {
+    private void fetchPlaylists(String webToken, String playlistTargetName, Bitmap cover, boolean isPublic, boolean isCollaborative, boolean isWorldWide, String trackUri, boolean first) {
         new Thread(() -> {
             try {
                 int offset = 0;
                 int limit = 50;
+                boolean found = false;
                 boolean hasMorePlaylists = true;
 
                 while (hasMorePlaylists) {
@@ -78,13 +78,25 @@ public class SpotifyUtil {
                         for (int i = 0; i < playlistsJson.length(); i++) {
                             JSONObject playlistJson = playlistsJson.getJSONObject(i);
                             String playlistName = playlistJson.getString("name");
-                            // Process the retrieved playlist name
+                            String playlistSnapId = playlistJson.getString("snapshot_id");
+                            String playlistUri = playlistJson.getString("uri");
                             Log.d("SpotifyUtil", "Retrieved playlist: " + playlistName);
+                            if (playlistName.equals(playlistTargetName)) {
+                                found = true;
+                                Log.d("SpotifyUtil", "Found playlist: " + playlistName);
+                                fetchTrackAndAdd(webToken, playlistUri, playlistSnapId, trackUri);
+                                return;
+                            }
                         }
 
-                        // Check if there are more playlists to fetch
-                        if (playlistsJson.length() < limit) {
+                        if (playlistsJson.length() < limit && first) {
                             hasMorePlaylists = false;
+                            if (!found) {
+                                createPlaylist(webToken, playlistTargetName, cover, isPublic, isCollaborative);
+                                if (first) {
+                                    updatePlaylistState(webToken, playlistTargetName, cover, isPublic, isCollaborative, isWorldWide, trackUri, false);
+                                }
+                            }
                         } else {
                             offset += limit;
                         }
@@ -101,34 +113,151 @@ public class SpotifyUtil {
         }).start();
     }
 
+    public void createPlaylist(String webToken, String playlistName, Bitmap cover, boolean isPublic, boolean isCollaborative) {
+        Log.e("SpotifyUtil", "Creating playlist: " + playlistName);
+        new Thread(() -> {
+            try {
+                OkHttpClient client = new OkHttpClient();
 
-    public void removeTrackFromPlaylist() {
+                // Convert bitmap to base64
+                ByteArrayOutputStream stream = new ByteArrayOutputStream();
+                cover.compress(Bitmap.CompressFormat.PNG, 90, stream);
+                byte[] byteArr = stream.toByteArray();
+                String base64Cover = Base64.encodeToString(byteArr, Base64.NO_WRAP);
 
+                MediaType mediaType = MediaType.parse("application/json");
+                RequestBody body = RequestBody.create(mediaType, "{\n\"name\":\"" + playlistName + "\",\n\"public\":" + isPublic + ",\n\"collaborative\":" + isCollaborative + "\n}");
+                Request request = new Request.Builder()
+                        .url(API_BASE_URL + "/me/playlists")
+                        .post(body)
+                        .addHeader("Authorization", "Bearer " + webToken)
+                        .addHeader("Content-Type", "application/json")
+                        .build();
+
+                Response response = client.newCall(request).execute();
+
+                // Extract the playlist ID from the response
+                String responseBody = response.body().string();
+                JSONObject jsonResponse = new JSONObject(responseBody);
+                String playlistId = jsonResponse.getString("id");
+
+                Log.d("SpotifyUtil", "Created playlist: " + playlistName);
+
+                // Upload cover image
+                MediaType imageMediaType = MediaType.parse("image/png");
+                RequestBody coverBody = RequestBody.create(imageMediaType, byteArr);
+                Request coverRequest = new Request.Builder()
+                        .url(API_BASE_URL + "/playlists/" + playlistId + "/images")
+                        .put(coverBody)
+                        .addHeader("Authorization", "Bearer " + webToken)
+                        .addHeader("Content-Type", "image/png")
+                        .build();
+
+                Response coverResponse = client.newCall(coverRequest).execute();
+                Log.d("SpotifyUtil", "Uploaded playlist cover");
+
+            } catch (IOException e) {
+                Log.e("Spotify API", "Failed to create playlist: " + e.getMessage());
+            } catch (JSONException e) {
+                Log.e("Spotify API", "Failed to parse JSON response: " + e.getMessage());
+            }
+        }).start();
     }
 
-    public void getTrackPosition() {
+    public void fetchTrackAndAdd(String webToken, String playlistUri, String snapshotId, String trackUri) {
+        new Thread(() -> {
+            try {
+                String playlistId = playlistUri.split(":")[2];
+                OkHttpClient client = new OkHttpClient();
 
-    }
+                // Retrieve the playlist tracks
+                Request getTracksRequest = new Request.Builder()
+                        .url(API_BASE_URL + "/playlists/" + playlistId + "/tracks")
+                        .get()
+                        .addHeader("Authorization", "Bearer " + webToken)
+                        .build();
 
-    public void addTrackToPlaylist() {
+                Response getTracksResponse = client.newCall(getTracksRequest).execute();
+                if (getTracksResponse.isSuccessful()) {
+                    String responseString = getTracksResponse.body().string();
+                    JSONObject responseObject = new JSONObject(responseString);
+                    JSONArray tracksArray = responseObject.getJSONArray("items");
 
-    }
-    public void getCurrentPlaylist() {
-        appRemote.getPlayerApi().subscribeToPlayerContext().setEventCallback(playerContext -> {
-            // Retrieve the current playlist from playerContext
-            Log.d("SpotifyUtil", "Current playlist: " + playerContext.title);
-            currentPlaylist = playerContext.title;
-        });
-    }
+                    int position = -1;
 
-    public void createPlaylist() {
+                    // Find the track in the playlist and retrieve its position
+                    for (int i = 0; i < tracksArray.length(); i++) {
+                        JSONObject trackObject = tracksArray.getJSONObject(i);
+                        JSONObject track = trackObject.getJSONObject("track");
+                        String uri = track.getString("uri");
+                        if (uri.equals(trackUri)) {
+                            position = i;
+                            break;
+                        }
+                    }
 
-    }
+                    // Remove the track if it's in the playlist
+                    if (position != -1) {
+                        // Decrease the position by one if it's not at position 0
+                        if (position > 0) {
+                            position--;
+                        }
 
-    public String getCurrentPlaylistName() {
-        return this.currentPlaylist;
-    }
+                        JSONObject requestBody = new JSONObject();
+                        JSONArray removeTracksArray = new JSONArray();
+                        JSONObject trackObject = new JSONObject();
+                        trackObject.put("uri", trackUri);
+                        removeTracksArray.put(trackObject);
+                        requestBody.put("tracks", removeTracksArray);
+                        requestBody.put("snapshot_id", snapshotId);
 
-    public void reactToTrack(String trackUri, String emoji) {
+                        MediaType mediaType = MediaType.parse("application/json");
+                        RequestBody body = RequestBody.create(mediaType, requestBody.toString());
+
+
+                        Request removeTrackRequest = new Request.Builder()
+                                .url(API_BASE_URL + "/playlists/" + playlistId + "/tracks")
+                                .delete(body)
+                                .addHeader("Authorization", "Bearer " + webToken)
+                                .addHeader("Content-Type", "application/json")
+                                .build();
+
+                        Response removeTrackResponse = client.newCall(removeTrackRequest).execute();
+                        String removeTrackResponseBody = removeTrackResponse.body().string();
+                        if (!removeTrackResponse.isSuccessful()) {
+                            Log.e("SpotifyUtil", "Failed to remove track from playlist: " + removeTrackResponseBody);
+                            return;
+                        }
+                    } else {
+                        position = 0;
+                    }
+
+                    // Add the track to the playlist at the updated position
+                    MediaType mediaType = MediaType.parse("application/json");
+                    RequestBody body = RequestBody.create(mediaType, "{\n\"uris\":[\"" + trackUri + "\"],\n\"position\":" + position + "\n}");
+                    Request addTrackRequest = new Request.Builder()
+                            .url(API_BASE_URL + "/playlists/" + playlistId + "/tracks")
+                            .post(body)
+                            .addHeader("Authorization", "Bearer " + webToken)
+                            .addHeader("Content-Type", "application/json")
+                            .build();
+
+                    Response addTrackResponse = client.newCall(addTrackRequest).execute();
+                    if (addTrackResponse.isSuccessful()) {
+                        Log.d("SpotifyUtil", "Added track to playlist: " + playlistId);
+                    } else {
+                        String addTrackResponseBody = addTrackResponse.body().string();
+                        Log.e("SpotifyUtil", "Failed to add track to playlist: " + addTrackResponseBody);
+                    }
+                } else {
+                    throw new IOException("Failed to retrieve playlist tracks: status code = " + getTracksResponse.code());
+                }
+
+            } catch (IOException e) {
+                Log.e("Spotify API", "Failed to add track to playlist: " + e.getMessage());
+            } catch (JSONException e) {
+                Log.e("Spotify API", "Failed to parse playlist tracks response: " + e.getMessage());
+            }
+        }).start();
     }
 }
