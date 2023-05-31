@@ -1,6 +1,7 @@
 package com.smojify.smojify;
 
 import android.graphics.Bitmap;
+import android.graphics.Canvas;
 import android.graphics.Color;
 import android.util.Base64;
 import android.util.Log;
@@ -130,25 +131,46 @@ public class SpotifyUtil {
         int imgHeight = bmp.getHeight();
         int imgWidth  = bmp.getWidth();
 
-        int smallX = 0, smallY = 0, largeX = imgWidth, largeY = imgHeight;
+        // Initialize to the extreme opposites
+        int smallX = imgWidth, smallY = imgHeight, largeX = 0, largeY = 0;
 
         for (int y = 0; y < imgHeight; y++) {
             for (int x = 0; x < imgWidth; x++) {
-                if (bmp.getPixel(x, y) != Color.TRANSPARENT) {
-                    if (x < largeX) largeX = x;
-                    if (y < largeY) largeY = y;
-                    if (x > smallX) smallX = x;
-                    if (y > smallY) smallY = y;
+                if (Color.alpha(bmp.getPixel(x, y)) > 0) {
+                    if (x < smallX) smallX = x;
+                    if (y < smallY) smallY = y;
+                    if (x > largeX) largeX = x;
+                    if (y > largeY) largeY = y;
                 }
             }
         }
 
-        //If the bitmap is entirely transparent, return the original one
-        if (largeX >= smallX || largeY >= smallY) return bmp;
+        // If the bitmap is entirely transparent, return the original one
+        if (smallX >= largeX || smallY >= largeY) return bmp;
 
-        // Return a new bitmap within the bounds
-        return Bitmap.createBitmap(bmp, largeX, largeY, smallX - largeX, smallY - largeY);
+        // Calculate the width and height of the bounding box
+        int boundingBoxWidth = largeX - smallX + 1;
+        int boundingBoxHeight = largeY - smallY + 1;
+
+        // The size of the square to create: the larger of the bounding box's width and height
+        int squareSize = Math.max(boundingBoxWidth, boundingBoxHeight);
+
+        // Create a square bitmap with the required size
+        Bitmap squareBitmap = Bitmap.createBitmap(squareSize, squareSize, bmp.getConfig());
+
+        // Calculate the position to draw the original bitmap on the square bitmap
+        int drawX = (squareSize - boundingBoxWidth) / 2;
+        int drawY = (squareSize - boundingBoxHeight) / 2;
+
+        // Draw the original bitmap on the square bitmap
+        Canvas canvas = new Canvas(squareBitmap);
+        canvas.drawBitmap(bmp, -smallX + drawX, -smallY + drawY, null);
+
+        // Return the square bitmap
+        return squareBitmap;
     }
+
+
 
 
     public void createPlaylist(String webToken, String playlistName, Bitmap cover, boolean isPublic, boolean isCollaborative, String trackUri) {
