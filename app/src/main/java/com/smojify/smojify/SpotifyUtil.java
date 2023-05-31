@@ -92,10 +92,8 @@ public class SpotifyUtil {
                         if (playlistsJson.length() < limit && first) {
                             hasMorePlaylists = false;
                             if (!found) {
-                                createPlaylist(webToken, playlistTargetName, cover, isPublic, isCollaborative);
-                                if (first) {
-                                    updatePlaylistState(webToken, playlistTargetName, cover, isPublic, isCollaborative, isWorldWide, trackUri, false);
-                                }
+                                createPlaylist(webToken, playlistTargetName, cover, isPublic, isCollaborative, trackUri);
+                                return ;
                             }
                         } else {
                             offset += limit;
@@ -107,13 +105,22 @@ public class SpotifyUtil {
 
                     connection.disconnect();
                 }
+
+                // Playlist was not found, create it
+                createPlaylist(webToken, playlistTargetName, cover, isPublic, isCollaborative, trackUri);
+
+                // Call the updatePlaylistState function here
+                if (first) {
+                    updatePlaylistState(webToken, playlistTargetName, cover, isPublic, isCollaborative, isWorldWide, trackUri, false);
+                }
             } catch (IOException | JSONException e) {
                 Log.e("Spotify API", "Failed to fetch playlists: " + e.getMessage());
             }
         }).start();
     }
 
-    public void createPlaylist(String webToken, String playlistName, Bitmap cover, boolean isPublic, boolean isCollaborative) {
+
+    public void createPlaylist(String webToken, String playlistName, Bitmap cover, boolean isPublic, boolean isCollaborative, String trackUri) {
         Log.e("SpotifyUtil", "Creating playlist: " + playlistName);
         new Thread(() -> {
             try {
@@ -139,9 +146,11 @@ public class SpotifyUtil {
                 // Extract the playlist ID from the response
                 String responseBody = response.body().string();
                 JSONObject jsonResponse = new JSONObject(responseBody);
-                String playlistId = jsonResponse.getString("id");
+                String playlistUri = jsonResponse.getString("uri");
+                String playlistId = playlistUri.split(":")[2];
 
                 Log.d("SpotifyUtil", "Created playlist: " + playlistName);
+                fetchTrackAndAdd(webToken, playlistUri, "", trackUri);
 
                 // Upload cover image
                 MediaType imageMediaType = MediaType.parse("image/png");
