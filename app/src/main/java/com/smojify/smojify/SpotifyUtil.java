@@ -1,6 +1,7 @@
 package com.smojify.smojify;
 
 import android.graphics.Bitmap;
+import android.graphics.Color;
 import android.util.Base64;
 import android.util.Log;
 
@@ -97,10 +98,16 @@ public class SpotifyUtil {
                             }
                         } else {
                             offset += limit;
+                            Log.e("FetchPlaylits", "Offset:" + offset);
+                            Thread.sleep(500); // Wait for 30 seconds
                         }
+                    } else if (responseCode == 429) {
+                        Log.e("Spotify API", "Rate limit exceeded. Fetching playlists. Waiting for 30 seconds before retrying...");
+                        Thread.sleep(30000); // Wait for 30 seconds
                     } else {
                         Log.e("Spotify API", "Failed to fetch playlists: " + responseCode + " - " + connection.getResponseMessage());
                         hasMorePlaylists = false; // Stop fetching playlists on error
+                        return;
                     }
 
                     connection.disconnect();
@@ -113,10 +120,34 @@ public class SpotifyUtil {
                 if (first) {
                     updatePlaylistState(webToken, playlistTargetName, cover, isPublic, isCollaborative, isWorldWide, trackUri, false);
                 }
-            } catch (IOException | JSONException e) {
+            } catch (IOException | JSONException | InterruptedException e) {
                 Log.e("Spotify API", "Failed to fetch playlists: " + e.getMessage());
             }
         }).start();
+    }
+
+    private Bitmap trimBitmap(Bitmap bmp) {
+        int imgHeight = bmp.getHeight();
+        int imgWidth  = bmp.getWidth();
+
+        int smallX = 0, smallY = 0, largeX = imgWidth, largeY = imgHeight;
+
+        for (int y = 0; y < imgHeight; y++) {
+            for (int x = 0; x < imgWidth; x++) {
+                if (bmp.getPixel(x, y) != Color.TRANSPARENT) {
+                    if (x < largeX) largeX = x;
+                    if (y < largeY) largeY = y;
+                    if (x > smallX) smallX = x;
+                    if (y > smallY) smallY = y;
+                }
+            }
+        }
+
+        //If the bitmap is entirely transparent, return the original one
+        if (largeX >= smallX || largeY >= smallY) return bmp;
+
+        // Return a new bitmap within the bounds
+        return Bitmap.createBitmap(bmp, largeX, largeY, smallX - largeX, smallY - largeY);
     }
 
 
@@ -127,10 +158,12 @@ public class SpotifyUtil {
                 OkHttpClient client = new OkHttpClient();
 
                 // Convert bitmap to base64
+                Bitmap trimmedCover = trimBitmap(cover);
                 ByteArrayOutputStream stream = new ByteArrayOutputStream();
-                cover.compress(Bitmap.CompressFormat.PNG, 90, stream);
+                trimmedCover.compress(Bitmap.CompressFormat.PNG, 90, stream);
                 byte[] byteArr = stream.toByteArray();
                 String base64Cover = Base64.encodeToString(byteArr, Base64.NO_WRAP);
+                base64Cover = base64Cover.trim().replace("\n", "");
 
                 MediaType mediaType = MediaType.parse("application/json");
                 RequestBody body = RequestBody.create(mediaType, "{\n\"name\":\"" + playlistName + "\",\n\"public\":" + isPublic + ",\n\"collaborative\":" + isCollaborative + "\n}");
@@ -141,7 +174,23 @@ public class SpotifyUtil {
                         .addHeader("Content-Type", "application/json")
                         .build();
 
-                Response response = client.newCall(request).execute();
+                Response response = null;
+                boolean shouldRetry = false;
+
+                do {
+                    if (shouldRetry) {
+                        Log.e("Spotify API", "Rate limit exceeded. Waiting for 30 seconds before retrying...");
+                        Thread.sleep(60000); // Wait for 30 seconds before retrying
+                    }
+
+                    response = client.newCall(request).execute();
+
+                    if (response.code() == 429) {
+                        shouldRetry = true;
+                    } else {
+                        shouldRetry = false;
+                    }
+                } while (shouldRetry);
 
                 // Extract the playlist ID from the response
                 String responseBody = response.body().string();
@@ -154,7 +203,7 @@ public class SpotifyUtil {
 
                 // Upload cover image
                 MediaType imageMediaType = MediaType.parse("image/png");
-                RequestBody coverBody = RequestBody.create(imageMediaType, byteArr);
+                RequestBody coverBody = RequestBody.create(imageMediaType, base64Cover);
                 Request coverRequest = new Request.Builder()
                         .url(API_BASE_URL + "/playlists/" + playlistId + "/images")
                         .put(coverBody)
@@ -163,15 +212,22 @@ public class SpotifyUtil {
                         .build();
 
                 Response coverResponse = client.newCall(coverRequest).execute();
-                Log.d("SpotifyUtil", "Uploaded playlist cover");
+                if (!coverResponse.isSuccessful()) {
+                    Log.e("SpotifyUtil", "Failed to upload playlist cover. Response: " + coverResponse.body().string());
+                } else {
+                    Log.d("SpotifyUtil", "Uploaded playlist cover. Response: " + coverResponse.body().string());
+                }
 
             } catch (IOException e) {
                 Log.e("Spotify API", "Failed to create playlist: " + e.getMessage());
             } catch (JSONException e) {
                 Log.e("Spotify API", "Failed to parse JSON response: " + e.getMessage());
+            } catch (InterruptedException e) {
+                Log.e("Spotify API", "Failed to wait for 30 seconds: " + e.getMessage());
             }
         }).start();
     }
+
 
     public void fetchTrackAndAdd(String webToken, String playlistUri, String snapshotId, String trackUri) {
         new Thread(() -> {

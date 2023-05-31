@@ -58,21 +58,37 @@
         android:layout_height="0dp"
         android:layout_weight="1">
 
-        <Button
-            android:id="@+id/emojiButton"
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/emojiButtonWrap"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:background="@android:color/transparent"
-            android:textSize="64dp"
-            android:gravity="center"
-            android:visibility="invisible" />
+            android:layout_height="match_parent">
+
+            <Button
+                android:id="@+id/emojiButton"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_gravity="center_horizontal"
+                android:background="@android:color/transparent"
+                android:textSize="90dp"
+                android:textAlignment="center"
+                android:textColor="@android:color/white"
+                android:visibility="invisible"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintDimensionRatio="1:1" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
 
         <ImageButton
             android:id="@+id/logoButton"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:src="@mipmap/ic_launcher_foreground"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
             android:background="@android:color/transparent"
+            android:src="@mipmap/ic_launcher_foreground"
             android:visibility="visible" />
 
         <EditText

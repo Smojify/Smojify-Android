@@ -1,7 +1,5 @@
 package com.smojify.smojify;
 
-import androidx.appcompat.app.AppCompatActivity;
-
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -20,11 +18,12 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.spotify.protocol.client.CallResult;
+import androidx.appcompat.app.AppCompatActivity;
 
 import com.spotify.android.appremote.api.ConnectionParams;
 import com.spotify.android.appremote.api.Connector;
 import com.spotify.android.appremote.api.SpotifyAppRemote;
+import com.spotify.protocol.client.CallResult;
 import com.spotify.protocol.types.Track;
 import com.spotify.sdk.android.auth.AuthorizationClient;
 import com.spotify.sdk.android.auth.AuthorizationRequest;
@@ -34,7 +33,7 @@ public class PlayerActivity extends AppCompatActivity {
 
     private static final int REQUEST_CODE = 1337;
     private static final String REDIRECT_URI = "http://localhost:8888/callback";
-    private static final String CLIENT_ID = "d12d52e12c1e4b8fb0edaa8b8d7c2cec";
+    private static final String CLIENT_ID = "9b9780df420f49028c410f8102b0b74c";
     private static String currentTrackUri = "";
     private static boolean isPublic = false;
     private static boolean isCollaborative = false;
@@ -139,7 +138,7 @@ public class PlayerActivity extends AppCompatActivity {
                 drawEmoji(inputText);
 
                 // Get the bitmap from the emojiButton
-                Button emojiButton = findViewById(R.id.emojiButton);
+                Button emojiButtonWrap = findViewById(R.id.emojiButton);
                 Bitmap emojiBitmap = getBitmapFromView(emojiButton);
 
                 // Send the bitmap to the SmojifyService
@@ -257,8 +256,8 @@ public class PlayerActivity extends AppCompatActivity {
     private Bitmap getBitmapFromView(View view) {
         Bitmap bitmap = Bitmap.createBitmap(view.getWidth(), view.getHeight(), Bitmap.Config.ARGB_8888);
         Canvas canvas = new Canvas(bitmap);
+        view.layout(view.getLeft(), view.getTop(), view.getRight(), view.getBottom());
         view.draw(canvas);
         return bitmap;
     }
-
 }
