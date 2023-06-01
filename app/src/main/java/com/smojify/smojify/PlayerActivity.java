@@ -44,6 +44,7 @@ public class PlayerActivity extends AppCompatActivity {
     SpotifyUtil spotify;
     private SmojifyService smojifyService;
     private String spotifyWebToken;
+    private SharedPreferences sharedPreferences;
 
 
     @Override
@@ -52,19 +53,13 @@ public class PlayerActivity extends AppCompatActivity {
         setContentView(R.layout.activity_player);
         emojiManager = new EmojiUtil();
         smojifyService = new SmojifyService();
-
-        // Retrieve the values from SharedPreferences and assign them to the variables
-        SharedPreferences sharedPreferences = getSharedPreferences("your_shared_prefs_file_name", Context.MODE_PRIVATE);
-        isPublic = sharedPreferences.getBoolean("isPublic", false);
-        isCollaborative = sharedPreferences.getBoolean("isCollaborative", false);
-        isWorldWide = sharedPreferences.getBoolean("isWorldWide", false);
-
         // Rest of your code...
     }
 
 
     @Override
     protected void onStart() {
+
         super.onStart();
         AuthorizationRequest.Builder builder = new AuthorizationRequest.Builder(CLIENT_ID, AuthorizationResponse.Type.TOKEN, REDIRECT_URI);
         builder.setScopes(new String[] {
@@ -78,6 +73,12 @@ public class PlayerActivity extends AppCompatActivity {
 
         AuthorizationRequest request = builder.build();
         AuthorizationClient.openLoginActivity(this, REQUEST_CODE, request);
+        // Retrieve the values from SharedPreferences and assign them to the variables
+
+        sharedPreferences = getSharedPreferences("SmojifySettings", Context.MODE_PRIVATE);
+        isPublic = sharedPreferences.getBoolean("isPlaylistsPublic", false);
+        isCollaborative = sharedPreferences.getBoolean("isPlaylistsCollaborative", false);
+        isWorldWide = sharedPreferences.getBoolean("isContributionEnabled", false);
     }
 
 

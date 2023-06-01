@@ -188,7 +188,9 @@ public class SpotifyUtil {
                 base64Cover = base64Cover.trim().replace("\n", "");
 
                 MediaType mediaType = MediaType.parse("application/json");
-                RequestBody body = RequestBody.create(mediaType, "{\n\"name\":\"" + playlistName + "\",\n\"public\":" + isPublic + ",\n\"collaborative\":" + isCollaborative + "\n}");
+                String bodyContent = "{\n\"name\":\"" + playlistName + "\",\n\"public\":" + isPublic + ",\n\"collaborative\":" + isCollaborative + "\n}";
+                RequestBody body = RequestBody.create(mediaType, bodyContent);
+                Log.e("SpotifyUtil", "Creating Playlist: " + bodyContent);
                 Request request = new Request.Builder()
                         .url(API_BASE_URL + "/me/playlists")
                         .post(body)

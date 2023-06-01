@@ -17,10 +17,7 @@ public class SmojifyService extends IntentService {
     private static final String EXTRA_EMOJI = "com.smojify.smojify.extra.EMOJI";
     private static final String EXTRA_TRACK_URI = "com.smojify.smojify.extra.TRACK_URI";
     private static final String EXTRA_SPOTIFY_WEB_TOKEN = "com.smojify.smojify.extra.SPOTIFY_WEB_TOKEN";
-    private static final String EXTRA_IS_PUBLIC = "com.smojify.smojify.extra.IS_PUBLIC";
-    private static final String EXTRA_IS_COLLABORATIVE = "com.smojify.smojify.extra.IS_COLLABORATIVE";
-    private static final String EXTRA_IS_WORLD_WIDE = "com.smojify.smojify.extra.IS_WORLD_WIDE";
-
+    private static String EXTRA_IS_PUBLIC = "com.smojify.smojify.extra.IS_PUBLIC";
     private static final String ACTION_START_SMOJIFY = "com.smojify.smojify.action.START_SMOJIFY";
     private static final String EXTRA_EMOJI_BITMAP = "com.smojify.smojify.extra.EMOJI_BITMAP";
 
@@ -46,15 +43,15 @@ public class SmojifyService extends IntentService {
         ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
         emojiBitmap.compress(Bitmap.CompressFormat.PNG, 100, byteArrayOutputStream);
         byte[] byteArray = byteArrayOutputStream.toByteArray();
+        boolean[] playlistPrivacySettings ={isPublic, isCollaborative, isWorldWide};
+        Log.e("Smojify", "public:" + String.valueOf(isPublic) + " collaborative: " + isCollaborative + " isWorld: " + isWorldWide);
 
         Intent intent = new Intent(context, SmojifyService.class);
         intent.setAction(ACTION_REACT_TO_TRACK);
         intent.putExtra(EXTRA_EMOJI, emoji);
         intent.putExtra(EXTRA_TRACK_URI, trackUri);
         intent.putExtra(EXTRA_SPOTIFY_WEB_TOKEN, token);
-        intent.putExtra(EXTRA_IS_PUBLIC, isPublic);
-        intent.putExtra(EXTRA_IS_COLLABORATIVE, isCollaborative);
-        intent.putExtra(EXTRA_IS_WORLD_WIDE, isWorldWide);
+        intent.putExtra(EXTRA_IS_PUBLIC, playlistPrivacySettings);
         intent.putExtra(EXTRA_EMOJI_BITMAP, byteArray);  // change this
         context.startService(intent);
     }
@@ -64,17 +61,19 @@ public class SmojifyService extends IntentService {
         if (intent != null) {
             final String action = intent.getAction();
             if (ACTION_REACT_TO_TRACK.equals(action)) {
-                final String emoji = intent.getStringExtra(EXTRA_EMOJI);
-                final String trackUri = intent.getStringExtra(EXTRA_TRACK_URI);
-                final String token = intent.getStringExtra(EXTRA_SPOTIFY_WEB_TOKEN);
-                final boolean isPublic = intent.getBooleanExtra(EXTRA_IS_PUBLIC, false);
-                final boolean isCollaborative = intent.getBooleanExtra(EXTRA_IS_COLLABORATIVE, false);
-                final boolean isWorldWide = intent.getBooleanExtra(EXTRA_IS_WORLD_WIDE, false);
+                String emoji = intent.getStringExtra(EXTRA_EMOJI);
+                String trackUri = intent.getStringExtra(EXTRA_TRACK_URI);
+                String token = intent.getStringExtra(EXTRA_SPOTIFY_WEB_TOKEN);
+                boolean[] playlistPrivacySettings = intent.getBooleanArrayExtra(EXTRA_IS_PUBLIC);
+                boolean isPublic = playlistPrivacySettings[0];
+                boolean isCollaborative = playlistPrivacySettings[1];
+                boolean isWorldWide = playlistPrivacySettings[2];
 
                 // Convert byte array back into Bitmap
                 byte[] byteArray = intent.getByteArrayExtra(EXTRA_EMOJI_BITMAP);
                 Bitmap emojiBitmap = BitmapFactory.decodeByteArray(byteArray, 0, byteArray.length);
 
+                Log.e("Smojify", "public:" + String.valueOf(isPublic) + " collaborative: " + isCollaborative + " isWorld: " + isWorldWide);
                 handleReactToTrack(token, emoji, emojiBitmap, isPublic, isCollaborative, isWorldWide, trackUri);
             }
         }
