@@ -37,11 +37,11 @@ public class EmojiUtil {
                     }
                     reader.close();
 
-                    String regexPattern = "<title>(.+?) Emoji</title>";
+                    String regexPattern = "<h1><span class=\"emoji\">(.+?)</span> (.+?)</h1>";
                     Pattern pattern = Pattern.compile(regexPattern);
                     Matcher matcher = pattern.matcher(response.toString());
                     if (matcher.find()) {
-                        String emojiSlugName = matcher.group(1);
+                        String emojiSlugName = matcher.group(1) + " " + matcher.group(2);
                         return emojiSlugName;
                     }
                 } catch (IOException e) {
