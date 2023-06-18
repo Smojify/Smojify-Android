@@ -11,6 +11,8 @@ import android.view.ViewGroup;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.smojify.smojify.R;
+
 public class MainScene extends AppCompatActivity {
 
     private Scene connectionScene;

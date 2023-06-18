@@ -9,4 +9,8 @@
     <color name="grey">#282828 </color>
     <color name="light_grey_text">#A5A5A5 </color>
     <color name="white">#F6F6F6</color>
+    <color name="green">#FF1DB954</color>
+    <color name="red">#FFFF0000</color>
+    <color name="switch_track_color">#C0C0C0</color>
+    <color name="transparent">#00000000</color>
 </resources>

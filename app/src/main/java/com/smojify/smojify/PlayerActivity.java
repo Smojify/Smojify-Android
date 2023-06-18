@@ -50,7 +50,7 @@ public class PlayerActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_player);
+        setContentView(R.layout.current_song);
         emojiManager = new EmojiUtil();
         smojifyService = new SmojifyService();
         // Rest of your code...
@@ -176,8 +176,12 @@ public class PlayerActivity extends AppCompatActivity {
         ImageView cover = findViewById(R.id.albumCoverImageView);
         currentTrackUri = track.uri;
 
+        Log.e("Yolo", "OOOOOOO");
+        Log.e("Track",track.toString());
         songTitle.setText(track.name);
+        Log.e("Yolo", "OOOOOO1");
         artistName.setText(track.artist.name);
+        Log.e("Yolo", "OOOOOO2");
         mSpotifyAppRemote.getImagesApi().getImage(
                 track.imageUri
         ).setResultCallback(
@@ -186,6 +190,7 @@ public class PlayerActivity extends AppCompatActivity {
                         cover.setImageBitmap(bitmap);
                     }
                 });
+        Log.e("Yolo", "OOOOOO3");
     }
 
     @Override
