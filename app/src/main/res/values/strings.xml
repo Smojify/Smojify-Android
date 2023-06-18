@@ -1,3 +1,9 @@
 <resources>
-    <string name="app_name">Smojify</string>
+    <string name="app_name">SmojifySample</string>
+    <string name="connection">Connect to Spotify</string>
+    <string name="version">v0.1</string>
+    <string name="update">List the update or list the tasks</string>
+    <string name="currentsongtitlelabel">CurrentSongTitleLabel</string>
+    <string name="currentsongastistlabel">CurrentSongArtistLabel</string>
+    <string name="todo">TODO</string>
 </resources>
