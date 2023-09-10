@@ -1,6 +1,10 @@
 # Smojify
 
-Smojify is an Android application that allows users to react with emojis to the songs they are listening to on Spotify. It enhances the music listening experience by enabling users to express their emotions and reactions in real-time.
+Smojify is a social experiment to link music and emotions worldwide through emoji reactions.
+
+It is an Android application that allows users to react with emojis to the songs they are listening to on Spotify.
+
+It enhances the music listening experience by enabling users to express their emotions and reactions in real-time.
 
 ## Features
 
@@ -9,8 +13,15 @@ Smojify is an Android application that allows users to react with emojis to the 
 - Real-time Sync: Smojify seamlessly synchronizes with the user's Spotify account, ensuring that the emoji reactions are always up to date. As soon as a user reacts to a song, their chosen emoji will be visible to other Smojify users who are listening to the same track.
 
 - Emoji Based Playlists: Smojify creates playlist from the reactions and allow users to listen to a playlist that match their mood
+
 ## Installation
 
+### Requirements
+
+Android 13 or higher
+Spotify app installed
+
+### Steps
 To use Smojify, follow these steps:
 
 1. Clone the Smojify repository to your local machine.
