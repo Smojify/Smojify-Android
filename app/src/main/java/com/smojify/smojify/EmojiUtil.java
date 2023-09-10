@@ -60,7 +60,6 @@ public class EmojiUtil {
                 listener.onEmojiNameFetched(emojiName);
             }
         };
-
         task.execute(urlString);
         return emojiSlugName;
     }

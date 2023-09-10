@@ -186,9 +186,16 @@ public class SpotifyUtil {
                 byte[] byteArr = stream.toByteArray();
                 String base64Cover = Base64.encodeToString(byteArr, Base64.NO_WRAP);
                 base64Cover = base64Cover.trim().replace("\n", "");
-
+                String bodyContent;
+                if (isCollaborative) {
+                    if (isPublic) {
+                        Log.w("Spotify API", "Collaborative playlists can only be private.");
+                    }
+                    bodyContent = "{\n\"name\":\"" + playlistName + "\",\n\"public\":" + false + ",\n\"collaborative\":" + true + "\n}";
+                } else {
+                    bodyContent = "{\n\"name\":\"" + playlistName + "\",\n\"public\":" + isPublic + ",\n\"collaborative\":" + false + "\n}";
+                }
                 MediaType mediaType = MediaType.parse("application/json");
-                String bodyContent = "{\n\"name\":\"" + playlistName + "\",\n\"public\":" + isPublic + ",\n\"collaborative\":" + isCollaborative + "\n}";
                 RequestBody body = RequestBody.create(mediaType, bodyContent);
                 Log.e("SpotifyUtil", "Creating Playlist: " + bodyContent);
                 Request request = new Request.Builder()
@@ -219,6 +226,7 @@ public class SpotifyUtil {
                 // Extract the playlist ID from the response
                 String responseBody = response.body().string();
                 JSONObject jsonResponse = new JSONObject(responseBody);
+                Log.w("SpotifyUtil", jsonResponse.toString());
                 String playlistUri = jsonResponse.getString("uri");
                 String playlistId = playlistUri.split(":")[2];
 
