@@ -1,5 +1,6 @@
 package com.smojify.smojify;
 import android.os.AsyncTask;
+import android.util.Log;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -37,11 +38,14 @@ public class EmojiUtil {
                     }
                     reader.close();
 
-                    String regexPattern = "<h1><span class=\"emoji\">(.+?)</span> (.+?)</h1>";
-                    Pattern pattern = Pattern.compile(regexPattern);
-                    Matcher matcher = pattern.matcher(response.toString());
-                    if (matcher.find()) {
-                        String emojiSlugName = matcher.group(1) + " " + matcher.group(2);
+                    String regexPattern1 = "<span class=\"Emoji_emoji__P7Lkz __variable_344bdf Emoji_emoji-large__fRM8m !bg-transparent transform active:scale-75 transition-transform\">(.+?)</span>";
+                    Pattern pattern1 = Pattern.compile(regexPattern1);
+                    Matcher matcher1 = pattern1.matcher(response.toString());
+                    String regexPattern2 = "<div class=\"SingleEmojiDescription_single-emoji-description-wrapper__6n_lB \"><div><i>(.+?)</i>";
+                    Pattern pattern2 = Pattern.compile(regexPattern2);
+                    Matcher matcher2 = pattern2.matcher(response.toString());
+                    if (matcher1.find() && matcher2.find()) {
+                        String emojiSlugName = matcher1.group(1) + " " + matcher2.group(1);
                         return emojiSlugName;
                     }
                 } catch (IOException e) {
