@@ -21,7 +21,7 @@ public class SettingsActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_settings);
 
-        sharedPreferences = getSharedPreferences("SmojifySettings", Context.MODE_APPEND);
+        sharedPreferences = getSharedPreferences("SmojifySettings", Context.MODE_PRIVATE);
         editor = sharedPreferences.edit();
         syncSettings();
     }
