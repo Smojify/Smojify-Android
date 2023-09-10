@@ -109,6 +109,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
+                android:backgroundTint="#FF1DB954"
                 app:srcCompat="@android:drawable/ic_media_previous" />
 
             <ImageButton
@@ -116,6 +117,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
+                android:backgroundTint="#FF1DB954"
                 app:srcCompat="@android:drawable/ic_media_pause" />
 
             <ImageButton
@@ -123,6 +125,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
+                android:backgroundTint="#FF1DB954"
                 app:srcCompat="@android:drawable/ic_media_next" />
         </LinearLayout>
 
