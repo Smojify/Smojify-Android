@@ -10,6 +10,7 @@ import android.util.Log;
 import com.spotify.android.appremote.api.SpotifyAppRemote;
 
 import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 
 public class SmojifyService extends IntentService {
 
@@ -35,10 +36,21 @@ public class SmojifyService extends IntentService {
     public void startService(Context context) {
         Intent intent = new Intent(context, SmojifyService.class);
         intent.setAction(ACTION_START_SMOJIFY);
+        //startOAuthServer();
         context.startService(intent);
         Log.d("Smojify Service", "Service started correctly");
     }
 
+    private void startOAuthServer() {
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                OAuthServer oauthServer = new OAuthServer();
+                // Call the method to start the OAuthServer
+                oauthServer.start();
+            }
+        }).start();
+    }
     public void reactToTrack(Context context, String token, String emoji, Bitmap emojiBitmap, boolean isPublic, boolean isCollaborative, boolean isWorldWide, String trackUri) {
         ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
         emojiBitmap.compress(Bitmap.CompressFormat.PNG, 100, byteArrayOutputStream);

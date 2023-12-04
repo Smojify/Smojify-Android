@@ -2,11 +2,19 @@ package com.smojify.smojify;
 import android.os.AsyncTask;
 import android.util.Log;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -38,15 +46,12 @@ public class EmojiUtil {
                     }
                     reader.close();
 
-                    String regexPattern1 = "<span class=\"Emoji_emoji__P7Lkz __variable_344bdf Emoji_emoji-large__fRM8m !bg-transparent transform active:scale-75 transition-transform\">(.+?)</span>";
-                    Pattern pattern1 = Pattern.compile(regexPattern1);
-                    Matcher matcher1 = pattern1.matcher(response.toString());
-                    String regexPattern2 = "<div class=\"SingleEmojiDescription_single-emoji-description-wrapper__6n_lB \"><div><i>(.+?)</i>";
-                    Pattern pattern2 = Pattern.compile(regexPattern2);
-                    Matcher matcher2 = pattern2.matcher(response.toString());
-                    if (matcher1.find() && matcher2.find()) {
-                        String emojiSlugName = matcher1.group(1) + " " + matcher2.group(1);
-                        return emojiSlugName;
+                    String regexPattern = "<title>(.+?) Emoji</title>";
+                    Pattern pattern = Pattern.compile(regexPattern);
+                    Log.e("RESPONSE", response.toString());
+                    Matcher matcher = pattern.matcher(response.toString());
+                    if (matcher.find()) {
+                        return matcher.group(1).replaceAll("\\s+", " ");
                     }
                 } catch (IOException e) {
                     e.printStackTrace();

@@ -30,8 +30,7 @@ import okhttp3.Response;
 public class SpotifyUtil {
     private static final String API_BASE_URL = "https://api.spotify.com/v1";
 
-    private static final String SMOJIFY_URI = "1234";
-    private String userUri;
+    String smojifyUri = "31drfiwkyk7jftdlfccrnmylm5li";
     private String currentPlaylist;
     private SpotifyAppRemote appRemote;
 
@@ -41,12 +40,12 @@ public class SpotifyUtil {
 
     public void updatePlaylistState(String webToken, String playlistName, Bitmap cover, boolean isPublic, boolean isCollaborative, boolean isWorldWide, String trackUri, boolean first) {
 
-        Log.e("SPOTIFYFETCH", webToken);
         Log.d("Spotify API", "Updating playlist state for: " + playlistName);
-        fetchPlaylists(webToken, playlistName,cover, isPublic, isCollaborative, isWorldWide, trackUri, first);
+        fetchPlaylists(webToken, playlistName,cover, isPublic, isCollaborative, isWorldWide, trackUri, first, "me");
+        fetchPlaylists(webToken, playlistName,cover, isPublic, isCollaborative, isWorldWide, trackUri, first, "users/"+smojifyUri);
     }
 
-    private void fetchPlaylists(String webToken, String playlistTargetName, Bitmap cover, boolean isPublic, boolean isCollaborative, boolean isWorldWide, String trackUri, boolean first) {
+    private void fetchPlaylists(String webToken, String playlistTargetName, Bitmap cover, boolean isPublic, boolean isCollaborative, boolean isWorldWide, String trackUri, boolean first, String userUri) {
         new Thread(() -> {
             try {
                 int offset = 0;
@@ -55,7 +54,7 @@ public class SpotifyUtil {
                 boolean hasMorePlaylists = true;
 
                 while (hasMorePlaylists) {
-                    URL url = new URL(API_BASE_URL + "/me/playlists?limit=" + limit + "&offset=" + offset);
+                    URL url = new URL(API_BASE_URL + "/" + userUri + "/playlists?limit=" + limit + "&offset=" + offset);
                     HttpURLConnection connection = (HttpURLConnection) url.openConnection();
                     connection.setRequestMethod("GET");
                     connection.setRequestProperty("Authorization", "Bearer " + webToken);
@@ -93,13 +92,13 @@ public class SpotifyUtil {
 
                         if (playlistsJson.length() < limit && first) {
                             hasMorePlaylists = false;
-                            if (!found) {
+                            if (!found && userUri == "me") {
                                 createPlaylist(webToken, playlistTargetName, cover, isPublic, isCollaborative, trackUri);
                                 return ;
                             }
                         } else {
                             offset += limit;
-                            Log.e("FetchPlaylits", "Offset:" + offset);
+                            Log.e("FetchPlaylits", userUri + " Offset:" + offset);
                             Thread.sleep(500); // Wait for 30 seconds
                         }
                     } else if (responseCode == 429) {
@@ -107,6 +106,7 @@ public class SpotifyUtil {
                         Thread.sleep(30000); // Wait for 30 seconds
                     } else {
                         Log.e("Spotify API", "Failed to fetch playlists: " + responseCode + " - " + connection.getResponseMessage());
+                        Log.e("Spotify API", "Failed to fetch playlists: " + connection.getContent().toString());
                         hasMorePlaylists = false; // Stop fetching playlists on error
                         return;
                     }
@@ -115,11 +115,15 @@ public class SpotifyUtil {
                 }
 
                 // Playlist was not found, create it
-                createPlaylist(webToken, playlistTargetName, cover, isPublic, isCollaborative, trackUri);
-
+                if (userUri ==  "me") {
+                    createPlaylist(webToken, playlistTargetName, cover, isPublic, isCollaborative, trackUri);
+                }
                 // Call the updatePlaylistState function here
                 if (first) {
                     updatePlaylistState(webToken, playlistTargetName, cover, isPublic, isCollaborative, isWorldWide, trackUri, false);
+                    if (userUri == "me") {
+                        fetchPlaylists(webToken, playlistTargetName,cover, isPublic, isCollaborative, isWorldWide, trackUri, first, "users/"+smojifyUri);
+                    }
                 }
             } catch (IOException | JSONException | InterruptedException e) {
                 Log.e("Spotify API", "Failed to fetch playlists: " + e.getMessage());

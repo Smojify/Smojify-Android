@@ -1,5 +1,7 @@
 package com.smojify.smojify;
 
+import static android.content.ContentValues.TAG;
+
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -29,9 +31,12 @@ import com.spotify.sdk.android.auth.AuthorizationClient;
 import com.spotify.sdk.android.auth.AuthorizationRequest;
 import com.spotify.sdk.android.auth.AuthorizationResponse;
 
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+
 public class PlayerActivity extends AppCompatActivity {
 
-    private static final int REQUEST_CODE = 1337;
+    private static final int REQUEST_CODE = 0x10;
     private static final String REDIRECT_URI = "http://localhost:8888/callback";
     private static final String CLIENT_ID = "9b9780df420f49028c410f8102b0b74c";
     private static String currentTrackUri = "";
@@ -51,34 +56,16 @@ public class PlayerActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.current_song);
+        initiateSpotifyAuthentication();
+        connectToSpotifyAppRemote(spotifyWebToken);
         emojiManager = new EmojiUtil();
         smojifyService = new SmojifyService();
-        // Rest of your code...
     }
 
 
     @Override
     protected void onStart() {
-
         super.onStart();
-        AuthorizationRequest.Builder builder = new AuthorizationRequest.Builder(CLIENT_ID, AuthorizationResponse.Type.TOKEN, REDIRECT_URI);
-        builder.setScopes(new String[] {
-                "streaming",
-                "playlist-read-private",
-                "playlist-read-collaborative",
-                "playlist-modify-private",
-                "playlist-modify-public",
-                "ugc-image-upload"
-        });
-
-        AuthorizationRequest request = builder.build();
-        AuthorizationClient.openLoginActivity(this, REQUEST_CODE, request);
-        // Retrieve the values from SharedPreferences and assign them to the variables
-
-        sharedPreferences = getSharedPreferences("SmojifySettings", Context.MODE_PRIVATE);
-        isPublic = sharedPreferences.getBoolean("isPlaylistsPublic", false);
-        isCollaborative = sharedPreferences.getBoolean("isPlaylistsCollaborative", false);
-        isWorldWide = sharedPreferences.getBoolean("isContributionEnabled", false);
     }
 
 
@@ -170,18 +157,16 @@ public class PlayerActivity extends AppCompatActivity {
     }
 
     private void updatePlayerState(Track track) {
+        Log.i(TAG, "Update Player view");
         TextView songTitle = findViewById(R.id.songTitleTextView);
         TextView artistName = findViewById(R.id.artistTextView);
         TextView playlistName = findViewById(R.id.playlistTextView);
         ImageView cover = findViewById(R.id.albumCoverImageView);
         currentTrackUri = track.uri;
 
-        Log.e("Yolo", "OOOOOOO");
         Log.e("Track",track.toString());
         songTitle.setText(track.name);
-        Log.e("Yolo", "OOOOOO1");
         artistName.setText(track.artist.name);
-        Log.e("Yolo", "OOOOOO2");
         mSpotifyAppRemote.getImagesApi().getImage(
                 track.imageUri
         ).setResultCallback(
@@ -190,7 +175,6 @@ public class PlayerActivity extends AppCompatActivity {
                         cover.setImageBitmap(bitmap);
                     }
                 });
-        Log.e("Yolo", "OOOOOO3");
     }
 
     @Override
@@ -205,6 +189,7 @@ public class PlayerActivity extends AppCompatActivity {
 
         // Check if result comes from the correct activity
         if (requestCode == REQUEST_CODE) {
+            Log.i(TAG, "Spotify Authorization Result");
             AuthorizationResponse response = AuthorizationClient.getResponse(resultCode, intent);
 
             switch (response.getType()) {
@@ -212,37 +197,11 @@ public class PlayerActivity extends AppCompatActivity {
                 case TOKEN:
                     // Handle successful response
                     if (response.getError() == null) {
-                    spotifyWebToken = response.getAccessToken();
-                    Log.d("Spotify Web Token", spotifyWebToken);
-                    smojifyService.startService(this);
-                    // Set the connection parameters
-                    ConnectionParams connectionParams =
-                            new ConnectionParams.Builder(CLIENT_ID)
-                                    .setRedirectUri(REDIRECT_URI)
-                                    .showAuthView(true)
-                                    .build();
-                    SpotifyAppRemote.connect(this, connectionParams,
-                            new Connector.ConnectionListener() {
-
-                                @Override
-                                public void onConnected(SpotifyAppRemote spotifyAppRemote) {
-                                    mSpotifyAppRemote = spotifyAppRemote;
-                                    spotify = new SpotifyUtil();
-                                    Log.d("MainActivity", "Connected! Yay!");
-
-                                    // Now you can start interacting with App Remote
-                                    connected();
-                                }
-
-                                @Override
-                                public void onFailure(Throwable throwable) {
-                                    Log.e("MainActivity", throwable.getMessage(), throwable);
-
-                                    // Something went wrong when attempting to connect! Handle errors here
-                                }
-                            });
+                        spotifyWebToken = response.getAccessToken();
+                        smojifyService.startService(this);
+                        Log.d(TAG, "Spotify Token -> " + spotifyWebToken);
                     } else {
-                        Log.e("Spotify Web Token", "Error obtaining token: " + response.getError());
+                        Log.e(TAG, "Spotify Token -> " + response.getError());
                     }
                     break;
 
@@ -250,6 +209,7 @@ public class PlayerActivity extends AppCompatActivity {
                 case ERROR:
                     // Handle error response
                     Log.e("Spotify Web Token", "KO");
+                    Log.e("Response", response.getError().toString());
                     break;
 
                 // Most likely auth flow was cancelled
@@ -259,6 +219,61 @@ public class PlayerActivity extends AppCompatActivity {
             }
         }
     }
+
+    // Call this method to start the authentication process
+    private void initiateSpotifyAuthentication() {
+        Log.i(TAG, "Initiate Spotify Auth");
+        ExecutorService executor = Executors.newSingleThreadExecutor();
+        executor.execute(() -> {
+            //OAuthServer server = new OAuthServer();
+            //server.start();
+        });
+
+        AuthorizationRequest request = new AuthorizationRequest.Builder(
+                CLIENT_ID,
+                AuthorizationResponse.Type.TOKEN,
+                REDIRECT_URI).setScopes(new String[] {
+                "streaming",
+                "playlist-read-private",
+                "playlist-read-collaborative",
+                "playlist-modify-private",
+                "playlist-modify-public",
+                "ugc-image-upload"
+        }).build();
+        //AuthorizationClient.openLoginInBrowser(this, request);
+        AuthorizationClient.openLoginActivity(this, 0x10, request);
+        Log.i(TAG, "Open Spotify Auth");
+    }
+
+    // Connect to Spotify App Remote using the provided access token
+    private void connectToSpotifyAppRemote(String accessToken) {
+        ConnectionParams connectionParams =
+                new ConnectionParams.Builder(CLIENT_ID)
+                        .setRedirectUri(REDIRECT_URI)
+                        .showAuthView(true)
+                        .build();
+        SpotifyAppRemote.connect(this, connectionParams,
+                new Connector.ConnectionListener() {
+
+                    @Override
+                    public void onConnected(SpotifyAppRemote spotifyAppRemote) {
+                        mSpotifyAppRemote = spotifyAppRemote;
+                        Log.d(TAG, "Connected! Yay!");
+
+                        // Now you can start interacting with App Remote
+                        connected();
+                    }
+
+                    @Override
+                    public void onFailure(Throwable throwable) {
+                        Log.e(TAG, throwable.getMessage(), throwable);
+
+                        // Something went wrong when attempting to connect! Handle errors here
+                    }
+                });
+    }
+
+
     private Bitmap getBitmapFromView(View view) {
         Bitmap bitmap = Bitmap.createBitmap(view.getWidth(), view.getHeight(), Bitmap.Config.ARGB_8888);
         Canvas canvas = new Canvas(bitmap);
