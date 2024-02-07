@@ -42,7 +42,7 @@ public class SpotifyUtil {
 
         Log.d("Spotify API", "Updating playlist state for: " + playlistName);
         fetchPlaylists(webToken, playlistName,cover, isPublic, isCollaborative, isWorldWide, trackUri, first, "me");
-        fetchPlaylists(webToken, playlistName,cover, isPublic, isCollaborative, isWorldWide, trackUri, first, "users/"+smojifyUri);
+        //fetchPlaylists(webToken, playlistName,cover, isPublic, isCollaborative, isWorldWide, trackUri, first, "users/"+smojifyUri);
     }
 
     private void fetchPlaylists(String webToken, String playlistTargetName, Bitmap cover, boolean isPublic, boolean isCollaborative, boolean isWorldWide, String trackUri, boolean first, String userUri) {

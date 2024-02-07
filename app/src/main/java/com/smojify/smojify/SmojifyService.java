@@ -9,8 +9,19 @@ import android.util.Log;
 
 import com.spotify.android.appremote.api.SpotifyAppRemote;
 
+import org.json.JSONObject;
+
+import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.net.HttpURLConnection;
+import java.net.Inet4Address;
+import java.net.InetAddress;
+import java.net.URL;
+import java.net.UnknownHostException;
 
 public class SmojifyService extends IntentService {
 
@@ -93,6 +104,7 @@ public class SmojifyService extends IntentService {
 
     private void handleReactToTrack(String webToken, String emoji,Bitmap cover,boolean isPublic,boolean isCollaborative,boolean isWorldWide,String trackUri) {
         Log.d("Smojify Service", "Reacting to track - Emoji: " + emoji + ", Track URI: " + trackUri);
+        sendReactionToSmojifyAPI(trackUri, emoji);
         // Retrieve Emoji Slug
         String emojiSlug = emojiAPI.getEmojiSlugName(emoji, new EmojiUtil.EmojiNameListener() {
             @Override
@@ -111,5 +123,78 @@ public class SmojifyService extends IntentService {
                 }
             }
         });
+    }
+    private void sendReactionToSmojifyAPI(String trackUri, String emojiSlug) {
+        new Thread(() -> {
+            // Force the use of IPv4
+            System.setProperty("java.net.preferIPv4Stack", "true");
+            HttpURLConnection conn = null;
+
+            try {
+                InetAddress[] addresses = InetAddress.getAllByName("api.smojify.com");
+                String ipv4Address = null;
+                for (InetAddress address : addresses) {
+                    if (address instanceof Inet4Address) {
+                        ipv4Address = address.getHostAddress();
+                        Log.d("DNS Test", "Using IPv4 Address: " + ipv4Address);
+                        break; // Use the first IPv4 address found
+                    }
+                }
+
+                if (ipv4Address == null) {
+                    Log.e("Smojify Service", "No IPv4 address resolved for api.smojify.com");
+                    return; // Exit the method if no IPv4 address is found
+                }
+
+                // Since we're manually resolving the IPv4 address, use it to create the URL
+                URL url = new URL("http", "api.smojify.com", 4444, "/react");
+
+                conn = (HttpURLConnection) url.openConnection();
+                conn.setRequestMethod("POST");
+                conn.setRequestProperty("Content-Type", "application/json; charset=UTF-8");
+                conn.setRequestProperty("Accept", "application/json");
+                conn.setDoOutput(true);
+                conn.setDoInput(true);
+
+                JSONObject jsonParam = new JSONObject();
+                jsonParam.put("trackUri", trackUri);
+                jsonParam.put("emoji", emojiSlug);
+
+                try (OutputStream os = conn.getOutputStream()) {
+                    byte[] input = jsonParam.toString().getBytes("UTF-8");
+                    os.write(input, 0, input.length);
+                }
+
+                int responseCode = conn.getResponseCode();
+                if (responseCode == HttpURLConnection.HTTP_OK) {
+                    try (BufferedReader br = new BufferedReader(
+                            new InputStreamReader(conn.getInputStream(), "utf-8"))) {
+                        StringBuilder response = new StringBuilder();
+                        String responseLine;
+                        while ((responseLine = br.readLine()) != null) {
+                            response.append(responseLine.trim());
+                        }
+                        Log.d("Smojify Service", "Response from Smojify API: " + response.toString());
+                    }
+                } else {
+                    InputStream errorStream = conn.getErrorStream();
+                    BufferedReader errorReader = new BufferedReader(new InputStreamReader(errorStream));
+                    StringBuilder errorResponse = new StringBuilder();
+                    String line;
+                    while ((line = errorReader.readLine()) != null) {
+                        errorResponse.append(line);
+                    }
+                    errorReader.close();
+                    Log.e("Smojify Service", "Failed to send reaction to Smojify API. Response code: " + responseCode + ", Error: " + errorResponse.toString());
+                }
+            } catch (Exception e) {
+                Log.e("Smojify Service", "Error sending reaction to Smojify API: " + e.getMessage(), e);
+                e.printStackTrace();
+            } finally {
+                if (conn != null) {
+                    conn.disconnect();
+                }
+            }
+        }).start();
     }
 }
