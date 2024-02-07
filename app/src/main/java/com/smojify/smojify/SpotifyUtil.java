@@ -105,8 +105,34 @@ public class SpotifyUtil {
                         Log.e("Spotify API", "Rate limit exceeded. Fetching playlists. Waiting for 30 seconds before retrying...");
                         Thread.sleep(30000); // Wait for 30 seconds
                     } else {
-                        Log.e("Spotify API", "Failed to fetch playlists: " + responseCode + " - " + connection.getResponseMessage());
-                        Log.e("Spotify API", "Failed to fetch playlists: " + connection.getContent().toString());
+                        Log.e("Spotify API", "Error fetching playlists: HTTP " + responseCode + " - " + connection.getResponseMessage());
+
+                        // Attempt to log detailed error message from the response body, if available
+                        InputStream errorStream = connection.getErrorStream();
+                        if (errorStream != null) {
+                            BufferedReader errorReader = new BufferedReader(new InputStreamReader(errorStream));
+                            StringBuilder errorResponse = new StringBuilder();
+                            String errorLine;
+                            while ((errorLine = errorReader.readLine()) != null) {
+                                errorResponse.append(errorLine);
+                            }
+                            errorReader.close();
+
+                            // Log the detailed error message from the server, if any
+                            Log.e("Spotify API", "Error detail: " + errorResponse.toString());
+                        } else {
+                            Log.e("Spotify API", "No detailed error message available from the server.");
+                        }
+
+                        // Log the URL that caused the error for easier debugging
+                        Log.e("Spotify API", "URL causing error: " + url);
+
+                        // Additional context if needed, like request parameters
+                        Log.e("Spotify API", "Request params - Limit: " + limit + ", Offset: " + offset);
+
+                        // Indicate the action taken after the error
+                        Log.e("Spotify API", "Aborting fetch due to error. Stopping further playlist fetch attempts.");
+
                         hasMorePlaylists = false; // Stop fetching playlists on error
                         return;
                     }
