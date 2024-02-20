@@ -27,6 +27,7 @@ public class SettingsActivity extends AppCompatActivity {
     }
 
     private void syncSettings() {
+        syncLocalContribution();
         syncWorldContribution();
         syncPlaylistPrivacy();
         syncPlaylistContribution();
@@ -73,10 +74,37 @@ public class SettingsActivity extends AppCompatActivity {
             }
         }
 
+
+    private void syncLocalContribution() {
+        Switch switchLocalContribution = findViewById(R.id.switchLocalContribution);
+        TextView textViewContributionStatus = findViewById(R.id.switchLocalContributionStatus);
+        switchLocalContribution.setChecked(sharedPreferences.getBoolean("createLocalPlaylist", false));
+        if (switchLocalContribution.isChecked()) {
+            textViewContributionStatus.setText("Smojify will create local playlists");
+            textViewContributionStatus.setTextColor(getResources().getColor(R.color.green));
+        } else {
+            textViewContributionStatus.setText("Smojify will not create local playlists");
+            textViewContributionStatus.setTextColor(getResources().getColor(R.color.red));
+        }
+        switchLocalContribution.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                if (isChecked) {
+                    textViewContributionStatus.setText("Smojify will create local playlists");
+                    textViewContributionStatus.setTextColor(getResources().getColor(R.color.green));
+                } else {
+                    textViewContributionStatus.setText("Smojify will not create local playlists");
+                    textViewContributionStatus.setTextColor(getResources().getColor(R.color.red));
+                }
+                editor.putBoolean("createLocalPlaylist", isChecked);
+                editor.apply();
+            }
+        });
+    }
     private void syncWorldContribution() {
         Switch switchWorldContribution = findViewById(R.id.switchWorldContribution);
         TextView textViewContributionStatus = findViewById(R.id.switchWorldContributionStatus);
-        switchWorldContribution.setChecked(sharedPreferences.getBoolean("isContributionEnabled", false));
+        switchWorldContribution.setChecked(sharedPreferences.getBoolean("contributeGlobalPlaylist", false));
         if (switchWorldContribution.isChecked()) {
             textViewContributionStatus.setText("You're contributing to world wide playlists");
             textViewContributionStatus.setTextColor(getResources().getColor(R.color.green));
@@ -94,7 +122,7 @@ public class SettingsActivity extends AppCompatActivity {
                     textViewContributionStatus.setText("You aren't contributing to world wide playlists");
                     textViewContributionStatus.setTextColor(getResources().getColor(R.color.red));
                 }
-                editor.putBoolean("isContributionEnabled", isChecked);
+                editor.putBoolean("contributeGlobalPlaylist", isChecked);
                 editor.apply();
             }
         });

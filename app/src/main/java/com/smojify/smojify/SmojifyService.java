@@ -3,6 +3,7 @@ package com.smojify.smojify;
 import android.app.IntentService;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.util.Log;
@@ -32,6 +33,8 @@ public class SmojifyService extends IntentService {
     private static String EXTRA_IS_PUBLIC = "com.smojify.smojify.extra.IS_PUBLIC";
     private static final String ACTION_START_SMOJIFY = "com.smojify.smojify.action.START_SMOJIFY";
     private static final String EXTRA_EMOJI_BITMAP = "com.smojify.smojify.extra.EMOJI_BITMAP";
+
+    private SharedPreferences sharedPreferences;
 
     private EmojiUtil emojiAPI;
     private SpotifyUtil spotifyAPI;
@@ -103,26 +106,39 @@ public class SmojifyService extends IntentService {
     }
 
     private void handleReactToTrack(String webToken, String emoji,Bitmap cover,boolean isPublic,boolean isCollaborative,boolean isWorldWide,String trackUri) {
+        sharedPreferences = getSharedPreferences("SmojifySettings", Context.MODE_PRIVATE);
+        boolean createLocalPlaylist = sharedPreferences.getBoolean("createLocalPlaylist", false);
+        boolean contributeGlobalPlaylist = sharedPreferences.getBoolean("contributeGlobalPlaylist", false);
         Log.d("Smojify Service", "Reacting to track - Emoji: " + emoji + ", Track URI: " + trackUri);
-        sendReactionToSmojifyAPI(trackUri, emoji);
-        // Retrieve Emoji Slug
-        String emojiSlug = emojiAPI.getEmojiSlugName(emoji, new EmojiUtil.EmojiNameListener() {
-            @Override
-            public void onEmojiNameFetched(String emojiName) {
-                if (emojiName != null) {
-                    // Do something with the emojiName
-                    Log.d("EmojiName", "Emoji Name: " + emojiName);
-                    Log.d("EmojiName", "TrackUri: " + trackUri);
-                    Log.d("EmojiName", "Token: " + webToken);
-                    //String playlistUri =
-                            spotifyAPI.updatePlaylistState(webToken, emojiName, cover, isPublic, isCollaborative, isWorldWide, trackUri, true);
-                    //spotifyAPI.updateTrackInPlaylist(false, trackUri, playlistUri, webToken);
-                } else {
-                    // Handle error or no data case
-                    Log.d("Emoji Name", "Failed to fetch emoji name");
+
+        if (contributeGlobalPlaylist) {
+            sendReactionToSmojifyAPI(trackUri, emoji);
+        } else {
+            Log.d("Smojify Service", "Global playlist contribution is disabled");
+        }
+
+        if (createLocalPlaylist) {
+            // Retrieve Emoji Slug
+            String emojiSlug = emojiAPI.getEmojiSlugName(emoji, new EmojiUtil.EmojiNameListener() {
+                @Override
+                public void onEmojiNameFetched(String emojiName) {
+                    if (emojiName != null) {
+                        // Do something with the emojiName
+                        Log.d("EmojiName", "Emoji Name: " + emojiName);
+                        Log.d("EmojiName", "TrackUri: " + trackUri);
+                        Log.d("EmojiName", "Token: " + webToken);
+                        //String playlistUri =
+                        spotifyAPI.updatePlaylistState(webToken, emojiName, cover, isPublic, isCollaborative, isWorldWide, trackUri, true);
+                        //spotifyAPI.updateTrackInPlaylist(false, trackUri, playlistUri, webToken);
+                    } else {
+                        // Handle error or no data case
+                        Log.d("Emoji Name", "Failed to fetch emoji name");
+                    }
                 }
-            }
-        });
+            });
+        } else {
+            Log.d("Smojify Service", "Local playlist creation is disabled");
+        }
     }
     private void sendReactionToSmojifyAPI(String trackUri, String emojiSlug) {
         new Thread(() -> {

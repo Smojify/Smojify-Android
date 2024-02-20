@@ -21,6 +21,36 @@
 
     <!-- Part 1: World Contribution -->
     <LinearLayout
+        android:id="@+id/llLocalContribution"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/tvLocalContribution"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Create Local User Playlists"
+            android:textSize="18sp"
+            android:layout_gravity="center_horizontal" />
+
+        <Switch
+            android:id="@+id/switchLocalContribution"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:checked="true"
+            android:textColor="@color/green"
+            android:layout_gravity="center_horizontal" />
+
+        <TextView
+            android:id="@+id/switchLocalContributionStatus"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal" />
+
+    </LinearLayout>
+    <!-- Part 1: World Contribution -->
+    <LinearLayout
         android:id="@+id/llWorldContribution"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -30,7 +60,7 @@
             android:id="@+id/tvWorldContribution"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="World Contribution"
+            android:text="Participate in World Wide Playlits"
             android:textSize="18sp"
             android:layout_gravity="center_horizontal" />
 
