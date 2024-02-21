@@ -76,6 +76,13 @@ public class PlayerActivity extends AppCompatActivity {
 
 
     protected void connected() {
+        EditText reactingEmojis = findViewById(R.id.emojiInput);
+        ImageButton logoButton = findViewById(R.id.logoButton);
+        Button emojiButton = findViewById(R.id.emojiButton);
+        ImageButton playButton = findViewById(R.id.playButton);
+        ImageButton pauseButton = findViewById(R.id.pauseButton);
+        ImageButton previousButton = findViewById(R.id.previousButton);
+        ImageButton nextButton = findViewById(R.id.nextButton);
         // Then we will write some more code here.
         // Subscribe to PlayerState
         mSpotifyAppRemote.getPlayerApi()
@@ -85,12 +92,17 @@ public class PlayerActivity extends AppCompatActivity {
                     if (track != null) {
                         currentTrackUri = track.uri;
                         updatePlayerState(track);
+                        if (playerState.isPaused) {
+                            playButton.setVisibility(View.VISIBLE);
+                            pauseButton.setVisibility(View.GONE);
+                        } else {
+                            playButton.setVisibility(View.GONE);
+                            pauseButton.setVisibility(View.VISIBLE);
+                        }
                     }
                 });
 
-        EditText reactingEmojis = findViewById(R.id.emojiInput);
-        ImageButton logoButton = findViewById(R.id.logoButton);
-        Button emojiButton = findViewById(R.id.emojiButton);
+
         logoButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -107,6 +119,36 @@ public class PlayerActivity extends AppCompatActivity {
                 reactingEmojis.requestFocus();
                 InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
                 imm.showSoftInput(reactingEmojis, InputMethodManager.SHOW_FORCED);
+            }
+        });
+
+        pauseButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                // Toggle between play and pause based on current playback state
+                    mSpotifyAppRemote.getPlayerApi().pause();
+            }
+        });
+
+        playButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                // Toggle between play and pause based on current playback state
+                mSpotifyAppRemote.getPlayerApi().resume();
+            }
+        });
+
+        nextButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                mSpotifyAppRemote.getPlayerApi().skipNext();
+            }
+        });
+
+        previousButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                mSpotifyAppRemote.getPlayerApi().skipPrevious();
             }
         });
 
