@@ -68,6 +68,12 @@ public class PlayerActivity extends AppCompatActivity {
         super.onStart();
     }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+        connectToSpotifyAppRemote(spotifyWebToken);
+    }
+
 
     protected void connected() {
         // Then we will write some more code here.
