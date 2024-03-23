@@ -1,0 +1,5 @@
+#!/bin/bash
+
+AUTH_TOKEN='BQAt6_aGQjEh36EnwMlvqjXnfeiPIsGFMqpM8sfskhU0fYXFWM4Wdq7RhH_DCklzTgOrDyqD1kkNt_LID8jxZaFsK8y5xShlF9PBZ4VuNZ9jw_sW33-BBjK7sApQ38Nmi7PTBrMJhg1tARSSQ9cjnHBIsRKjAMd45r6rZzQ5lfBMmJyhpnAyL0eYCznGAVmh8XZEzXZ57nqVGnue4LBfBmny6yAXqVO9vtJlEwZJ1FmW3E7S8gm3lj8hBaqFnhSednSW6taPDNDXbn9MJrXVh4jed4oNrPTxTbERaT2_XLjucujKwUolKr2DADH_JglgarppaDnDiQSt3QvLgW9aBL1s_X_JXY9R'
+
+curl -L 'https://api-partner.spotify.com/pathfinder/v1/query?operationName=libraryV3&variables=%7B%22filters%22%3A%5B%5D%2C%22order%22%3A%22Recently+Added%22%2C%22textFilter%22%3A%22%22%2C%22features%22%3A%5B%22LIKED_SONGS%22%2C%22YOUR_EPISODES%22%5D%2C%22limit%22%3A50%2C%22offset%22%3A0%2C%22flatten%22%3Afalse%2C%22expandedFolders%22%3A%5B%5D%2C%22folderUri%22%3A%22spotify%3Auser%3A31xyt7khqn7ujom2jvmttstq2r44%3Afolder%3A41642576effc8bfe%22%2C%22includeFoldersWhenFlattening%22%3Atrue%2C%22withCuration%22%3Afalse%7D&extensions=%7B%22persistedQuery%22%3A%7B%22version%22%3A1%2C%22sha256Hash%22%3A%22808f0e4288442f2cc56e25e2b80029d873316a40c2d63952d20ac40c9f049d9e%22%7D%7D' -H "Authorization: Bearer $AUTH_TOKEN"
