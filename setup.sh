@@ -10,10 +10,13 @@ then
 	exit 1
 else
 	JAVA_VERSION="$(java --version | head -n1 | cut -d' ' -f2)"
+	LOWEST_JAVA_VERSION="$(printf "$JAVA_VERSION\n$REQUIRED_JAVA_VERSION" | sort | head -n1)"
 	echo "Java Version: $JAVA_VERSION"
-	LOWEST_JAVA_VERSION="$(echo "$JAVA_VERSION\n$REQUIRED_JAVA_VERSION" | sort | head -n1)"
+	echo "Required Java Version: $REQUIRED_JAVA_VERSION"
+	echo "Lowest Java Version: $LOWEST_JAVA_VERSION"
 	if [ "$LOWEST_JAVA_VERSION" != "$REQUIRED_JAVA_VERSION" ]
 	then
+		echo "Java Version: $JAVA_VERSION"
 		echo "Please update your java version to $REQUIRED_JAVA_VERSION or later"
 		exit 1
 	fi
