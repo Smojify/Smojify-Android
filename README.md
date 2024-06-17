@@ -53,3 +53,11 @@ Smojify isn't just another app; it's a groundbreaking social experiment that bri
    * The README offers clear instructions on contributing code, reporting bugs, and suggesting features.
 
 **Ready to unleash your inner music emoji master? [Download Smojify](https://github.com/smojify/Smojify-Android/releases/latest) today and let the feelings flow!** 🚀🎉
+
+
+## How to Contribute
+We warmly welcome contributions from everyone! If you're interested in contributing, please also explore potential rewards on Bount.ing.
+
+## Sponsorship Opportunities
+Support our entire project by becoming a sponsor on GitHub.
+Alternatively, sponsor specific issues that are of particular interest to you via Bount.ing.
